@@ -7,13 +7,15 @@ website:
     left:
       - href: index.qmd
         text: Home
+      - href: around.qmd
+      - href: statistics.qmd
       - about.qmd
 
 format:
   html:
-    theme: cosmo
+    theme:
+      light: [flatly]
     css: styles.css
     toc: true
-
 
 

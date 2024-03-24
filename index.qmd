@@ -1,8 +1,747 @@
 ---
-title: "Explorateur d'ascensions"
+echo: false
+output: false
+format:
+  html:
+    grid:
+      sidebar-width: 0px
+      body-width: 2000px
+      margin-width: 0px
+      gutter-width: 0.5rem
 ---
 
+```{ojs}
+screenHeight = window.innerHeight
+```
+
+```{ojs}
+//| output: true
+html
+`
+<div class="container">
+  <div class="select-container">
+    <div>${viewof filter_choice}</div>
+    <div>${widget_to_print}</div>
+  </div>
+  <div class="lang-selector">${viewof lang}</div>
+</div>
+`
+```
 
 
 
 
+```{ojs}
+//| output: true
+html`
+<div class="main-container">
+  <div id = "leafletmap" style="width: 40%;">${leafletmap}</div>
+  <div class="column spacer" style="width: 2%;">
+      <!-- Spacer column -->
+  </div>
+  <div style="width: 58%;">
+  <div id="statsElement"><i>Pas d'ascension sélectionnée</i></div>
+  </div>
+</div>
+`
+```
+
+```{ojs}
+//| eval: false
+statsElement.appendChild(rank_ascent(sommets, "denivellation", lang))
+```
+
+
+```{ojs}
+viewof lang = Inputs.toggle({label: "Switch to English version", values: ["en", "fr"]})
+```
+
+
+```{ojs}
+viewof filter_choice = Inputs.select(
+  [filter_checkbox_length, filter_checkbox_deniv, filter_checkbox_category, filter_checkbox_slope],
+  {value: filter_checkbox_deniv}
+  )
+```
+
+
+```{ojs}
+printed_points = geo.filter(sommets, (d) => filter_active_width(d, filter_choice))
+```
+
+
+
+
+```{ojs}
+function rank_ascent(sommetsGeoJson, variableToPlot, selectedClimb, lang = "fr"){
+ const namelabel = (lang == "fr") ? "Ascension" : "Ascent" 
+ const gainlabel = (lang == "fr") ? "Dénivelé positif" : "Elevation gain" 
+ const massiflabel = (lang == "fr") ? "Massif" : "Mountain side" 
+ const percentlabel = (lang == "fr") ? "Pente moyenne" : "Average slope" 
+ let p = Plot.plot({
+  color: {
+      type: "sequential",
+      scheme: "Turbo"
+    },
+    marks: [
+      Plot.ruleX(
+        sommetsGeoJson.features.map(d=>d.properties),
+        {
+          x: variableToPlot, stroke: variableToPlot,
+          channels: {
+            nom: {label: namelabel, value: "nom"},
+            deniv: {label: gainlabel, value: (d) => `${d.denivellation}m`},
+            massif: {label: massiflabel, value: "massif"},
+            percent: {value: (d) => `${d.percent_moyen}%`, label: percentlabel},
+            },
+          tip: {
+            format: {
+              stroke : false
+            },
+            anchor: "top"
+          },
+          strokeOpacity: 0.2}
+      ),
+      Plot.ruleX([selectedClimb], {x : variableToPlot, stroke: "red", strokeWidth: 2})
+    ]
+  })
+  return p
+}
+```
+
+```{ojs}
+function Range(range, options = {}) {
+  const [min, max] = range;
+  const {
+    className = "Range",
+    vertical = false,
+    label = null,
+    format = (x) => +x,
+    step = 1,
+    value = (min + max) / 2,
+    style = "",
+    labelStyle = "",
+    rangeStyle = "",
+    valueStyle = "",
+    unit = "" // New option for specifying a unit
+  } = options;
+  const rangeWrap = htl.html`<div class=${className} style="${style}"></div>`;
+  Object.assign(rangeWrap.style, {
+    display: "inline-flex",
+    position: "relative",
+    userSelect: "none",
+    alignItems: "center",
+    gap: "4px"
+  });
+  const valueDisplay = htl.html`<output style="${valueStyle}"></output>`;
+  Object.assign(valueDisplay.style, {
+    display: "inline-block"
+  });
+  const rangeInput = htl.html`<input type=range min=${min} max=${max} step=${step} value=${value} style=${rangeStyle}></input>`;
+  Object.assign(rangeInput.style, {
+    display: "inline-block"
+  });
+  if (vertical) {
+    rangeInput.setAttribute("orient", "vertical");
+    rangeInput.style.writingMode = "bt-lr";
+    rangeInput.style["-webkit-appearance"] = "slider-vertical";
+    rangeInput.style.width = "8px";
+  }
+
+  rangeWrap.append(rangeInput, valueDisplay);
+
+  if (label) {
+    const labelElement = htl.html`<label style=${labelStyle}>${label}</label>`;
+    rangeWrap.prepend(labelElement);
+  }
+
+  rangeInput.oninput = () => {
+    // Append the unit to the formatted number
+    valueDisplay.textContent = `${format(rangeInput.valueAsNumber)}${unit}`;
+    rangeWrap.value = rangeWrap.valueAsNumber = rangeInput.valueAsNumber;
+    rangeWrap.dispatchEvent(new CustomEvent("input"));
+  };
+
+  rangeInput.oninput(); // Initialize the displayed value
+  return rangeWrap;
+}
+```
+
+```{ojs}
+widget_to_print = {
+  switch (filter_choice) {
+    case filter_checkbox_length:
+      console.log("Choosing filter by length")
+      return Inputs.bind(
+          Range([1, max_length], {unit: "km"}),
+          viewof climb_length
+      )
+    case filter_checkbox_deniv:
+      console.log("Choosing filter by height gain")
+      return Inputs.bind(
+        Range([1, max_denivelation], {unit: "m"}),
+        viewof climb_height
+      )
+    case filter_checkbox_category:
+      console.log("Choosing filter by category")
+      return Inputs.bind(
+        Inputs.checkbox(
+          categories,
+          {
+            sort: "descending",
+            value: ["HC", "Cat 1"],
+            //label: category_label
+          }
+        ),
+        viewof category
+      )
+    case filter_checkbox_slope:
+      console.log("Choosing filter by average slope")
+      return Inputs.bind(
+        Range([0, max_slope], {unit: "%", step: 0.2}),
+        viewof climb_slope
+      )
+    default:
+      return false
+  }
+}
+
+function filter_active_width(d, widget) {
+  switch (widget) {
+    case filter_checkbox_deniv:
+      return d.denivellation > climb_height;
+    case filter_checkbox_length:
+      return d.longueur > climb_length;
+    case filter_checkbox_category:
+      return category.includes(d.category);
+    case filter_checkbox_slope:
+      return d.percent_moyen > climb_slope;
+    default:
+      return false; // or any default case handling you prefer
+  }
+}
+
+```
+
+
+
+
+```{ojs}
+function getColorForCategory(category) {
+  switch (category) {
+    case 'Cat 1':
+      return 'blue';
+    case 'Cat 2':
+      return 'green';
+    case 'Cat 3':
+      return 'yellow';
+    case 'Cat 4':
+      return 'orange';
+    case 'HC':
+      return 'red';
+    default:
+      return 'gray';
+  }
+}
+```
+
+```{ojs}
+function tooltipSummit(feature){
+  const tooltipMessage = `<b>${feature.properties.nom}</b><br><i>Cliquer sur ce sommet pour en savoir plus</i>`
+  return tooltipMessage
+}
+```
+
+```{ojs}
+leafletmap = {
+
+  // Create a container element for leaflet map
+  let parent = DOM.element('div', { style: `width:${0.4*width}px;height:${0.85*screenHeight}px` });
+  yield parent;
+  var map = L.map(parent).setView([0, 0], 5);
+
+  // Add the layer control to the map
+  let baseLayers = availableLayers(L, map) ;
+  L.control.layers(baseLayers).addTo(map);
+
+
+    // Define a function that will be called for each feature in your GeoJSON layer
+  function popEventSummit(feature, layer) {
+
+      // Add mouseover event listener
+      layer.on('mouseover', function() {
+        const tooltipMessage = tooltipSummit(feature) ;
+        layer.bindTooltip(tooltipMessage, {permanent: false, direction: "auto"}).openTooltip();
+      });
+
+      // Create popup for ascent summit
+      layer.bindPopup(
+        popUpSummit(feature, lang)
+      );
+
+     layer.on({
+       click: whenClicked, //callback functions
+     });
+      
+      // Existing event listener for popup opens
+      layer.on('popupopen', function() {
+        const statsElement = document.getElementById('statsElement');
+        
+        // Update the content of 'statsElement' with the desired statistics from 'feature.properties'
+        statsElement.innerHTML = container_ascent(feature, lang) ;
+
+
+        // Fetch route for selected ascent
+        const id = feature.properties.id;
+        const polylineUrl = `https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/split/${id}.geojson`;
+
+        // Create a polyline
+        fetch(polylineUrl)
+          .then(response => response.json())
+          .then(data => ascentTrackPolyline(map, data, feature))
+          .catch(error => console.error('Error loading the polyline GeoJSON:', error));
+      });
+
+  }
+  
+    var geojsonLayer = L.geoJson(printed_points, {
+      onEachFeature: popEventSummit,
+      pointToLayer: function(feature, coordinates) {
+        return createIcon(feature, coordinates)        
+      }
+    }).addTo(map);
+  
+    geojsonLayer.setStyle({
+      color: 'red',
+      weight: 5
+  });
+
+  
+    map.fitBounds(geojsonLayer.getBounds())
+}
+```
+
+
+```{ojs}
+function createIcon(feature, coordinates){
+        const color_value = getColorForCategory(feature.properties.category);
+        const iconUrl = `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color_value}.png`;
+                
+        var icon_color = new L.Icon({
+          iconUrl: iconUrl,
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        });
+        
+        return L.marker(coordinates, {icon: icon_color})
+
+}
+```
+
+```{ojs}
+function ascentTrackPolyline(map, data, feature){
+            // Create a polyline from the GeoJSON and add it to the map
+            const polyline = L.geoJson(data, {
+              color: 'red', // You can customize the polyline's style here
+              weight: 3
+            }).addTo(map);
+
+            // Mouseover for ascent characteristics 
+            polyline.on('mouseover', function() {
+              this.bindTooltip(
+                 popUpRoute(feature),
+                {permanent: false, direction: "top"}).openTooltip();
+              
+            });
+
+            // Get mouse location on the map to interactively update a figure
+            const points = toGeoJSONFeatureCollection(data);
+            
+            // polyline.on('mousemove', function(e) {
+              // var nearest = get_nearest_point(e, points)
+              // Update the mutable hover_alt to the altitude
+              // mutable hover_alt = nearest;
+            // });
+
+  return polyline
+}
+```
+
+```{ojs}
+function get_nearest_point(e, points){
+  // 'e.latlng' gives you the LatLng object of where the mouse currently is
+  const mouseLatLng = e.latlng;
+  const targetPoint = turf.point([mouseLatLng.lng, mouseLatLng.lat]);
+  var nearest = turf.nearestPoint(targetPoint, points);
+  return nearest
+}
+```
+
+```{ojs}
+            // Function to convert array of coordinate arrays to a FeatureCollection
+            function toGeoJSONFeatureCollection(data) {
+              const coordsArray = data.features.map(d => d.geometry.coordinates);
+              // Map each coordinate array to a GeoJSON Point feature
+              const features = coordsArray.flat().map(coords => ({
+                "type": "Feature",
+                "properties": {
+                  // If you have properties to include, add them here
+                  "altitude": coords[2]  // Example property
+                },
+                "geometry": {
+                  "type": "Point",
+                  "coordinates": [coords[0], coords[1]]  // Only longitude and latitude are used for Point
+                }
+              }));
+            
+              // Return as a FeatureCollection
+              return {
+                "type": "FeatureCollection",
+                "features": features
+              };
+            }
+```
+
+## Données
+
+```{ojs}
+raw = fetch(
+    "https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/alpes-nord-sommets.geojson"
+  ).then(
+    (response) => response.json()
+  )
+sommets = geo.filter(raw, (d) => !d.vtt)
+
+max_length = d3.max(
+  sommets.features.map(d=>d.properties.longueur)
+)
+
+max_denivelation = d3.max(
+  sommets.features.map(d=>d.properties.denivellation)
+)
+
+max_slope = d3.max(
+  sommets.features.map(d=>d.properties.percent_moyen)
+)
+```
+
+```{ojs}
+//| eval: false
+mutable hover_alt = null
+
+profile = Plot.plot({
+  marks: [
+    Plot.ruleY([0]),
+    Plot.areaY(details_altitude, {x: "index", y: "altitude"}),
+    Plot.ruleX([hover_alt.properties.featureIndex], {stroke: "red"}),
+    Plot.ruleY([hover_alt.properties.altitude], {stroke: "red"})
+  ]
+})
+
+updateContentBasedOnAscent(hover_alt, profile);
+```
+
+```{ojs}
+unique = (arr) => [...new Set(arr)]
+```
+
+```{ojs}
+selectedRoute = d3.json(`https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/split/${selectedClimb.id}.geojson`)
+```
+
+
+```{ojs}
+details_altitude = selectedRoute.features[0].geometry.coordinates.map((coord, index) => {
+  return { index: index, altitude: coord[2]}
+});
+```
+
+```{ojs}
+geo = require("geotoolbox@2")
+```
+
+
+```{ojs}
+mutable selectedClimb = null
+```
+
+```{ojs}
+whenClicked =  (event) => {
+  mutable selectedClimb = event.target.feature.properties
+  }
+```
+
+```{ojs}
+function featureEvents(feature, layer) {
+   layer.on({
+     click: whenClicked, //callback functions
+     
+   });
+}
+```
+
+## Widgets
+
+```{ojs}
+filter_checkbox_deniv = (lang == "fr") ? "Dénivelé" : "Height gain"
+filter_checkbox_category = (lang == "fr") ? "Catégorie de l'ascension" : "Ascent category"
+filter_checkbox_length = (lang == "fr") ? `Longueur de l'ascension` : "Ascension length"
+filter_checkbox_slope = (lang == "fr") ? "Pente moyenne" : "Average slope"
+viewof climb_slope = Inputs.range([0, max_slope], {step: 0.2})
+viewof climb_length = Inputs.range([0, max_length], {step: 1})
+viewof climb_height = Inputs.range([0, max_denivelation], {step: 1})
+viewof category = Inputs.checkbox(
+  categories, {sort: "descending", value: ["HC", "Cat 1"]})
+```
+
+```{ojs}
+categories = unique(sommets.features.map(d => d.properties.category))
+```
+
+
+```{ojs}
+message_category = lang == 'fr' ? `Version simplifiée de la classification UCI ${classificationDetails}` : `Simplified UCI classification ${classificationDetails}`
+```
+
+```{ojs}
+category_label = html`<span class="info-container">
+  <span style="color: orange" class="infopicto">${getIconSvg("info")}
+    <span class="tooltip-content">
+      ${lang == 'fr' ? 'Version simplifiée de la classification UCI <br>Dénivelé:' : 'Simplified UCI classification<br>Gain:'}
+      ${classificationDetails}
+    </span>
+  </span>
+</span>`
+```
+
+```{ojs}
+classificationDetails = `
+<ul>
+  <li>Cat 4: 80 - 159m</li>
+  <li>Cat 3: 160 - 319m</li>
+  <li>Cat 2: 320 - 639m</li>
+  <li>Cat 1: 640 - 799m</li>
+  <li>HC: 800m and more </li>
+</ul>
+`
+```
+
+## Functions
+
+
+
+```{ojs}
+function container_ascent(feature, lang){
+
+  const imageInitial = feature.properties.profil_image_url ;
+
+  const imageURL = imageInitial.replace(
+          'profils.cols-cyclisme.com',
+          'minio.lab.sspcloud.fr/lgaliana/cyclisme/data/images'
+        ) ;
+
+  
+  const container = `
+<div id="container-statistics" style="display: flex; flex-direction: column;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+    <div style="width: 20%;">
+      ${popUpSummit(feature, lang)}
+    </div>
+    <div id="ascent-image" style="width: 80%;">
+      <img src="${imageURL}" alt="" style="max-width: 100%; height: auto; max-height:${screenHeight*0.5};">
+    </div>
+  </div>
+  <div id="stats-denivellation" style="width: 100%;">
+    <!-- Content for stats-denivellation goes here -->
+  </div>
+</div>
+        ` ;
+
+  return container
+}
+```
+
+```{ojs}
+{
+  document.querySelector('#stats-denivellation').appendChild(
+    rank_ascent(sommets, "denivellation", selectedClimb, lang)
+  )
+  document.querySelector('#stats-denivellation').appendChild(
+    rank_ascent(sommets, "longueur", selectedClimb, lang)
+  )
+
+}
+```
+
+
+```{ojs}
+function popUpSummit(feature, lang){
+  const AscentName = (lang == "fr") ? "Ascension" : "Ascent" ;
+  const departure = (lang == "fr") ? "Départ" : "Start" ;
+  const maxAlt = (lang == "fr") ? "Sommet" : "Summit" ;
+  const climbLength = (lang == "fr") ? "Longueur" : "Length" ;
+  const gain = (lang == "fr") ? "Dénivelé" : "Gain" ;
+  const averageSlope = (lang == "fr") ? "Pente moyenne" : "Average slope" ; 
+  const maxSlope = (lang == "fr") ? "Pente maximale" : "Maximum slope" ; 
+  const hrefText =  (lang == "fr") ? "Voir sur" : "See on"
+  const popup = `
+          <b>${AscentName}</b>: ${feature.properties.nom}<br>
+          <b>${departure}</b>: ${feature.properties.depart} (${feature.properties.massif})<br> 
+          <b>${maxAlt}</b>: ${feature.properties.alt}m<br>
+          <b>${climbLength}</b>: ${feature.properties.longueur}km<br>
+          <b>${gain}</b>: ${feature.properties.denivellation}m (${feature.properties.category})<br>
+          <b>${averageSlope}</b>: ${feature.properties.percent_moyen}%<br>
+          <b>${maxSlope}</b>: ${feature.properties.percent_maximal}%<br>
+          <a href="${feature.properties.href}" target="_blank">${hrefText} <code>https://cols-cyclisme.com/</code></a>
+` 
+  return popup
+}
+```
+
+```{ojs}
+function popUpRoute(feature){
+  const departure = (lang == "fr") ? "Départ de" : "Start from" ;
+  const maxAlt = (lang == "fr") ? "altitude d'arrivée:" : "summit at" ;
+  const climbLength = (lang == "fr") ? "Ascension de" : "Climbing length is" ;
+  const averageSlope = (lang == "fr") ? "de moyenne" : "on average" ; 
+  const denivelle = (lang == "fr") ? "D+" : "gain" ; 
+  const maxSlope = (lang == "fr") ? "Pente maximale" : "Maximum slope" ; 
+
+  const popup = `
+                  <b>${feature.properties.nom}</b><br>
+                  ${departure} ${feature.properties.depart} (${maxAlt} ${feature.properties.altitude}m)<br>
+                  ${climbLength} ${feature.properties.longueur}km, ${feature.properties.percent_moyen}% ${averageSlope} (${feature.properties.denivellation}m ${denivelle})<br>
+                  <i>${maxSlope}:  ${feature.properties.percent_maximal}%</i>
+  `
+  return popup
+}
+```
+
+```{ojs}
+function availableLayers(L, map){
+  
+  // Define tile layers
+  var defaultLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map); // Set as the default layer
+  
+  var topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    maxZoom: 17,
+    attribution: '© OpenStreetMap contributors, © OpenTopoMap (CC-BY-SA)'
+  });
+  
+  var cycleLayer = L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
+    maxZoom: 20,
+    attribution: '© OpenStreetMap contributors, © CyclOSM'
+  });
+  
+  // Add the base layers to a layer control
+  var baseLayers = {
+    "Default": defaultLayer,
+    "Topographic": topoLayer,
+    "Cycling": cycleLayer
+  };
+
+  return baseLayers  
+}
+```
+
+```{ojs}
+// Function to update the content based on the ascent selection and mutable_alt
+function updateContentBasedOnAscent(mutable_alt, profile) {
+  const statsElement = document.getElementById('statsElement');
+  const defaultMessage = html``
+
+  // Check if statsElement exists
+  if (statsElement) {
+    if (statsElement.innerHTML.includes('Pas d\'ascension sélectionnée')) {
+      // If 'Pas d'ascension sélectionnée' is present, clear ascentProfileElement
+      return defaultMessage
+    }
+  }
+
+    if (mutable_alt === null) {
+      // If mutable_alt is null and an ascent is selected, show interactive profile message
+      return html`<i>Passer la souris sur la trace pour afficher le profil de manière interactive</i>`
+    } else {
+      // If mutable_alt is not null, show the profile
+      return html`<div>${profile}</div>`
+    }
+}
+```
+
+
+
+## Environment
+
+```{ojs}
+import {getIconSvg} from '@saneef/feather-icons'
+```
+
+```{ojs}
+html`
+<style type="text/css">
+
+/* Style for the tooltip container */
+.info-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip text */
+.tooltip-content {
+  visibility: hidden;
+  width: 280px;
+  background-color: black;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 5px 10px;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -140px; /* Use half of the width (280/2 = 140), to center the tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.tooltip-content::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.infopicto:hover .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+}
+
+
+</style>
+`
+```
+
+
+```{ojs}
+turf = require("@turf/turf@6")
+```
+
+
+```{ojs}
+//| echo: false
+Plot = require("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.13/dist/plot.umd.min.js")
+```

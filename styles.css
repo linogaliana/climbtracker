@@ -1,1 +1,223 @@
-/* css styles */
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start; /* Keep items aligned at the start vertically */
+    justify-content: flex-start; /* Align items to the start (left) horizontally */
+    margin-left: 0px;
+  }
+
+
+  .select-container {
+	align-items: center;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 10px; /* Space between elements */
+    justify-content: flex-start; /* Align child elements to the start (left) */
+  }
+  
+  .lang-selector {
+    flex-basis: 200px; /* Adjust based on the width of the lang selector */
+    padding-left: 20px; /* Space between lang selector and select-container */
+  }
+  
+  /* Media query for wider screens */
+  @media (min-width: 768px) { /* Adjust this breakpoint as needed */
+    .select-container {
+      flex-direction: row; /* Arrange children in rows */
+      justify-content: flex-start; /* Align children to the start (left) */
+    }
+    
+    .container {
+      flex-wrap: nowrap; /* Prevent wrapping to a new line */
+    }
+  
+    .select-container, .lang-selector {
+      flex-basis: auto;
+      width: auto;
+    }
+  }
+  
+
+/*
+Main container
+*/
+
+.main-container {
+    display: flex;
+    flex-wrap: nowrap;
+  }
+  
+  .column {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .leaflet-map, .spacer, .content {
+    /* Adding some padding for visual separation, adjust as needed */
+    padding: 10px;
+  }
+  
+  /* Additional styling for the leaflet map container */
+  #leaflet-map-container {
+    /* Example dimensions, adjust according to your needs */
+    height: 400px;
+    background-color: #e0e0e0; /* Placeholder color */
+  }
+  
+  /* Style adjustments for the content containers if needed */
+  #rank-ascent-denivellation, #rank-ascent-longueur, #statsElement {
+    margin-bottom: 20px; /* Spacing between content elements */
+  }
+
+  #container-statistics {
+    max-height: 85vh; /* Adjust based on screenHeight if necessary */
+    overflow: hidden; /* Consider how overflow is handled */
+    display: flex;
+    flex-direction: column;
+  }
+
+  #ascent-image img {
+    max-height: 50vh; /* Adjust to 50% of the viewport height or based on screenHeight */
+    width: auto; /* Maintain aspect ratio */
+  }
+
+
+/*
+Inputs slider range
+*/
+
+input[type=range] {
+    height: 25px;
+    -webkit-appearance: none;
+    margin: 10px 0;
+    width: 100%;
+  }
+  input[type=range]:focus {
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 5px;
+    cursor: pointer;
+    animate: 0.2s;
+    box-shadow: 0px 0px 0px #000000;
+    background: #e90132;
+    border-radius: 1px;
+    border: 0px solid #000000;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    box-shadow: 0px 0px 0px #520101;
+    border: 1px solid #e90132;
+    height: 18px;
+    width: 18px;
+    border-radius: 25px;
+    background: #FFFFFF;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -7px;
+  }
+  input[type=range]:focus::-webkit-slider-runnable-track {
+    background: #e90132;
+  }
+  input[type=range]::-moz-range-track {
+    width: 100%;
+    height: 5px;
+    cursor: pointer;
+    animate: 0.2s;
+    box-shadow: 0px 0px 0px #000000;
+    background: #e90132;
+    border-radius: 1px;
+    border: 0px solid #000000;
+  }
+  input[type=range]::-moz-range-thumb {
+    box-shadow: 0px 0px 0px #520101;
+    border: 1px solid #e90132;
+    height: 18px;
+    width: 18px;
+    border-radius: 25px;
+    background: #FFFFFF;
+    cursor: pointer;
+  }
+  input[type=range]::-ms-track {
+    width: 100%;
+    height: 5px;
+    cursor: pointer;
+    animate: 0.2s;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+  }
+  input[type=range]::-ms-fill-lower {
+    background: #e90132;
+    border: 0px solid #000000;
+    border-radius: 2px;
+    box-shadow: 0px 0px 0px #000000;
+  }
+  input[type=range]::-ms-fill-upper {
+    background: #e90132;
+    border: 0px solid #000000;
+    border-radius: 2px;
+    box-shadow: 0px 0px 0px #000000;
+  }
+  input[type=range]::-ms-thumb {
+    margin-top: 1px;
+    box-shadow: 0px 0px 0px #520101;
+    border: 1px solid #e90132;
+    height: 18px;
+    width: 18px;
+    border-radius: 25px;
+    background: #FFFFFF;
+    cursor: pointer;
+  }
+  input[type=range]:focus::-ms-fill-lower {
+    background: #e90132;
+  }
+  input[type=range]:focus::-ms-fill-upper {
+    background: #e90132;
+  }
+
+
+  /* Style for the tooltip container */
+.info-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip text */
+.tooltip-content {
+  visibility: hidden;
+  width: 280px;
+  background-color: black;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 5px 10px;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -140px; /* Use half of the width (280/2 = 140), to center the tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.tooltip-content::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.infopicto:hover .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+}
