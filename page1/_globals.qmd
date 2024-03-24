@@ -1,0 +1,72 @@
+<!-------------
+Window height
+-------------->
+
+```{ojs}
+availableHeight = window.innerHeight
+screenHeight = 0.9*(availableHeight - document.getElementById("quarto-header").offsetHeight)
+```
+
+<!--------------------------
+Mutable values overriden by actions
+---------------------------->
+
+```{ojs}
+mutable selectedClimb = null
+```
+
+
+<!------------------------
+Classification details
+-------------------------->
+
+```{ojs}
+category_label = html`<span class="info-container">
+  <span style="color: orange" class="infopicto">${getIconSvg("info")}
+    <span class="tooltip-content">
+      ${lang == 'fr' ? 'Version simplifiée de la classification UCI <br>Dénivelé:' : 'Simplified UCI classification<br>Gain:'}
+      ${classificationDetails}
+    </span>
+  </span>
+</span>`
+```
+
+```{ojs}
+classificationDetails = `
+<ul>
+  <li>Cat 4: 80 - 159m</li>
+  <li>Cat 3: 160 - 319m</li>
+  <li>Cat 2: 320 - 639m</li>
+  <li>Cat 1: 640 - 799m</li>
+  <li>HC: 800m and more </li>
+</ul>
+`
+```
+
+```{ojs}
+unique = (arr) => [...new Set(arr)]
+```
+
+
+<!--------------
+Environment
+--------------->
+
+```{ojs}
+import {getIconSvg} from '@saneef/feather-icons'
+```
+
+
+```{ojs}
+turf = require("@turf/turf@6")
+```
+
+```{ojs}
+geo = require("geotoolbox@2")
+```
+
+
+```{ojs}
+//| echo: false
+Plot = require("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.13/dist/plot.umd.min.js")
+```

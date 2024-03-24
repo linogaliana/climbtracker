@@ -1,0 +1,42 @@
+<!----------------------
+Choices input choice
+------------------------>
+
+```{ojs}
+search_label_choice = (lang == "fr") ? "Rechercher une ascension" : "Finding an ascent"
+explorer_label_choice = (lang == "fr") ? "Laissez moi explorer !" : "Let me explore !"
+```
+
+<!----------------------
+Options lang
+------------------------>
+
+```{ojs}
+switch_label =  (lang == "fr") ? "Switch to English version 🇬🇧 🇺🇸" : "Passer à la version française 🇫🇷"
+```
+
+```{ojs}
+message_category = lang == 'fr' ? `Version simplifiée de la classification UCI ${classificationDetails}` : `Simplified UCI classification ${classificationDetails}`
+```
+
+
+<!--------------------------
+Labels
+--------------------------->
+
+
+```{ojs}
+filter_checkbox_deniv = (lang == "fr") ? "Dénivelé" : "Height gain"
+filter_checkbox_category = (lang == "fr") ? "Catégorie de l'ascension" : "Ascent category"
+filter_checkbox_length = (lang == "fr") ? `Longueur de l'ascension` : "Ascension length"
+filter_checkbox_slope = (lang == "fr") ? "Pente moyenne" : "Average slope"
+```
+
+```{ojs}
+header_table_name = (lang == "fr") ? "Ascension" : "Ascent"
+header_table_departure = (lang == "fr") ? "Départ" : "Departure"
+header_table_alt = (lang == "fr") ? "Altitude d'arrivée" : "Arrival height"
+header_table_avgpercent = (lang == "fr") ? "Pente moyenne (%)" : "Average slope (%)"
+header_table_maxpercent = (lang == "fr") ? "Pente maximale (%)" : "Maximum slope (%)"
+```
+

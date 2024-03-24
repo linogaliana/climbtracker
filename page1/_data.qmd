@@ -1,0 +1,38 @@
+```{ojs}
+raw = fetch(
+    "https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/alpes-nord-sommets.geojson"
+  ).then(
+    (response) => response.json()
+  )
+sommets = geo.filter(raw, (d) => !d.vtt)
+cols = sommets.features.map(d=>d.properties)
+
+max_length = d3.max(
+  sommets.features.map(d=>d.properties.longueur)
+)
+
+max_denivelation = d3.max(
+  sommets.features.map(d=>d.properties.denivellation)
+)
+
+max_slope = d3.max(
+  sommets.features.map(d=>d.properties.percent_moyen)
+)
+```
+
+```{ojs}
+categories = unique(sommets.features.map(d => d.properties.category))
+```
+
+
+
+```{ojs}
+selectedRoute = d3.json(`https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/split/${selectedClimb.id}.geojson`)
+```
+
+
+```{ojs}
+details_altitude = selectedRoute.features[0].geometry.coordinates.map((coord, index) => {
+  return { index: index, altitude: coord[2]}
+});
+```

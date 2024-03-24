@@ -1,0 +1,130 @@
+<!---------------------------
+Layer
+----------------------------->
+
+```{ojs}
+function availableLayers(L, map){
+  
+  // Define tile layers
+  var defaultLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map); // Set as the default layer
+  
+  var topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    maxZoom: 17,
+    attribution: '© OpenStreetMap contributors, © OpenTopoMap (CC-BY-SA)'
+  });
+  
+  var cycleLayer = L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
+    maxZoom: 20,
+    attribution: '© OpenStreetMap contributors, © CyclOSM'
+  });
+  
+  // Add the base layers to a layer control
+  var baseLayers = {
+    "Default": defaultLayer,
+    "Topographic": topoLayer,
+    "Cycling": cycleLayer
+  };
+
+  return baseLayers  
+}
+```
+
+<!---------------------------
+Popup when clicking
+on summit
+----------------------------->
+
+
+```{ojs}
+function popUpSummit(feature, lang){
+  const AscentName = (lang == "fr") ? "Ascension" : "Ascent" ;
+  const departure = (lang == "fr") ? "Départ" : "Start" ;
+  const maxAlt = (lang == "fr") ? "Sommet" : "Summit" ;
+  const climbLength = (lang == "fr") ? "Longueur" : "Length" ;
+  const gain = (lang == "fr") ? "Dénivelé" : "Gain" ;
+  const averageSlope = (lang == "fr") ? "Pente moyenne" : "Average slope" ; 
+  const maxSlope = (lang == "fr") ? "Pente maximale" : "Maximum slope" ; 
+  const hrefText =  (lang == "fr") ? "Voir sur" : "See on"
+  const popup = `
+          <b>${AscentName}</b>: ${feature.properties.nom}<br>
+          <b>${departure}</b>: ${feature.properties.depart} (${feature.properties.massif})<br> 
+          <b>${maxAlt}</b>: ${feature.properties.alt}m<br>
+          <b>${climbLength}</b>: ${feature.properties.longueur}km<br>
+          <b>${gain}</b>: ${feature.properties.denivellation}m (${feature.properties.category})<br>
+          <b>${averageSlope}</b>: ${feature.properties.percent_moyen}%<br>
+          <b>${maxSlope}</b>: ${feature.properties.percent_maximal}%<br>
+          <a href="${feature.properties.href}" target="_blank">${hrefText} <code>https://cols-cyclisme.com/</code></a>
+` 
+  return popup
+}
+```
+
+```{ojs}
+function tooltipRoute(feature){
+  const departure = (lang == "fr") ? "Départ de" : "Start from" ;
+  const maxAlt = (lang == "fr") ? "altitude d'arrivée:" : "summit at" ;
+  const climbLength = (lang == "fr") ? "Ascension de" : "Climbing length is" ;
+  const averageSlope = (lang == "fr") ? "de moyenne" : "on average" ; 
+  const denivelle = (lang == "fr") ? "D+" : "gain" ; 
+  const maxSlope = (lang == "fr") ? "Pente maximale" : "Maximum slope" ; 
+
+  const popup = `
+                  <b>${feature.properties.nom}</b><br>
+                  ${departure} ${feature.properties.depart} (${maxAlt} ${feature.properties.altitude}m)<br>
+                  ${climbLength} ${feature.properties.longueur}km, ${feature.properties.percent_moyen}% ${averageSlope} (${feature.properties.denivellation}m ${denivelle})<br>
+                  <i>${maxSlope}:  ${feature.properties.percent_maximal}%</i>
+  `
+  return popup
+}
+```
+
+
+```{ojs}
+function container_ascent(feature, lang){
+
+  const imageInitial = feature.properties.profil_image_url ;
+
+  const imageURL = imageInitial.replace(
+          'profils.cols-cyclisme.com',
+          'minio.lab.sspcloud.fr/lgaliana/cyclisme/data/images'
+        ) ;
+
+  
+  const container = `
+<div id="container-statistics" style="display: flex; flex-direction: column;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+    <div style="width: 20%;">
+      ${popUpSummit(feature, lang)}
+    </div>
+    <div id="ascent-image" style="width: 80%;">
+      <img src="${imageURL}" alt="" style="max-width: 100%; height: auto; max-height:${screenHeight*0.5};">
+    </div>
+  </div>
+  <div id="stats-denivellation" style="width: 100%;">
+    <!-- Content for stats-denivellation goes here -->
+  </div>
+</div>
+        ` ;
+
+  return container
+}
+```
+
+
+```{ojs}
+whenClicked =  (event) => {
+  mutable selectedClimb = event.target.feature.properties
+  }
+```
+
+```{ojs}
+function featureEvents(feature, layer) {
+   layer.on({
+     click: whenClicked, //callback functions
+     
+   });
+}
+```
