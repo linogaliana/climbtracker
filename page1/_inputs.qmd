@@ -1,11 +1,145 @@
+
+```{ojs}
+widget_to_print = {
+  switch (filter_choice) {
+    case filter_checkbox_length:
+      console.log("Choosing filter by length")
+      return Inputs.bind(
+          Range([1, max_length], {unit: "km"}),
+          viewof climb_length
+      )
+    case filter_checkbox_deniv:
+      console.log("Choosing filter by height gain")
+      return Inputs.bind(
+        Range([1, max_denivelation], {unit: "m"}),
+        viewof climb_height
+      )
+    case filter_checkbox_category:
+      console.log("Choosing filter by category")
+      return Inputs.bind(
+        Inputs.checkbox(
+          categories,
+          {
+            sort: "descending",
+            value: ["HC", "Cat 1"],
+            //label: category_label
+          }
+        ),
+        viewof category
+      )
+    case filter_checkbox_slope:
+      console.log("Choosing filter by average slope")
+      return Inputs.bind(
+        Range([0, max_slope], {unit: "%", step: 0.2}),
+        viewof climb_slope
+      )
+    default:
+      return false
+  }
+}
+
+function filter_active_width(d, widget) {
+  switch (widget) {
+    case filter_checkbox_deniv:
+      return d.denivellation > climb_height;
+    case filter_checkbox_length:
+      return d.longueur > climb_length;
+    case filter_checkbox_category:
+      return category.includes(d.category);
+    case filter_checkbox_slope:
+      return d.percent_moyen > climb_slope;
+    default:
+      return false; // or any default case handling you prefer
+  }
+}
+
+```
+
+
+<!---------------------
+Visible filters
+----------------------->
+
 ```{ojs}
 //| output: true
 viewof mode = Inputs.radio(new Map([[search_label_choice, "search"], [explorer_label_choice, "explorer"]]), {value: "explorer"})
 ```
 
+
+<!------------------
+Lang
+-------------------->
+
 ```{ojs}
-viewof lang = Inputs.toggle({values: ["en", "fr"]})
+viewof lang = startStop()
 ```
+
+
+```{ojs}
+english = document.getElementById("button_english")
+french = document.getElementById("button_french")
+
+function change(lang_on, lang_off) {
+  if (!lang_on.classList.contains("current_lang")) {
+    // if the span that the user clicks on does not have the "current_lang" class
+    lang_on.classList.add("current_lang");
+    // add the "current_lang" class to it
+    lang_off.classList.remove("current_lang");
+    // remove the "current_lang" class from the other span
+  }
+}
+
+english.addEventListener("click", function() {
+    change(english, french);
+  }, false
+);
+// add an event listener to listen to when the user clicks on one of the language span tags
+// this triggers our custom "change" function, which we will define later
+
+french.addEventListener("click", function() {
+    change(french, english);
+  }, false
+);
+```
+
+```{ojs}
+startStop = () => {
+const buttons = html`
+<form class="form-language-switcher">
+  <input value="Français 🇫🇷" type="button" name="stop" id="button_french" class="button_lang current_lang">
+  <input value="English 🇬🇧🇺🇸" type="button" name="start" id="button_english" class="button_lang">
+</form>
+`
+buttons.value = "fr"
+
+// French button  
+buttons.stop.onclick = event => {
+  buttons.value = "fr";
+  event.preventDefault(); // Don’t submit the form.
+  buttons.dispatchEvent(new CustomEvent("input"));                      
+  const french = document.getElementById("button_french") ;
+  const english = document.getElementById("button_english") ;
+  french.classList.add("current_lang")
+  english.classList.remove("current_lang")
+}
+// English button  
+buttons.start.onclick = event => {
+  buttons.value = "en";
+  event.preventDefault(); // Don’t submit the form.
+  buttons.dispatchEvent(new CustomEvent("input")); 
+  const french = document.getElementById("button_french") ;
+  const english = document.getElementById("button_english") ;
+  english.classList.add("current_lang")
+  french.classList.remove("current_lang")
+}
+
+return buttons
+}
+```
+
+<!-----------
+
+------------->
 
 ```{ojs}
 viewof search = Inputs.search(
@@ -32,14 +166,12 @@ table_selected = Inputs.table(
         longueur: filter_checkbox_length,
         denivellation: filter_checkbox_deniv,
         altitude: header_table_alt,
-        percent_moyen: filter_checkbox_slope,
+        percent_moyen: header_table_avgpercent,
         percent_maximal: header_table_maxpercent
       },
     sort: "denivellation", reverse: true
 })
 ```
-
-
 
 
 ```{ojs}

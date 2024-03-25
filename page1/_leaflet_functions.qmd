@@ -63,6 +63,47 @@ function popUpSummit(feature, lang){
 ```
 
 ```{ojs}
+function ascentTrackPolyline(map, data, feature, color){
+            // Create a polyline from the GeoJSON and add it to the map
+            const polyline = L.geoJson(data, {
+              color: color, // You can customize the polyline's style here
+              weight: 3
+            }).addTo(map);
+
+            // Mouseover for ascent characteristics 
+            polyline.on('mouseover', function() {
+              this.bindTooltip(
+                 tooltipRoute(feature),
+                {permanent: false, direction: "top"}).openTooltip();
+              
+            });
+
+            // Get mouse location on the map to interactively update a figure
+            const points = toGeoJSONFeatureCollection(data);
+            
+            // polyline.on('mousemove', function(e) {
+              // var nearest = get_nearest_point(e, points)
+              // Update the mutable hover_alt to the altitude
+              // mutable hover_alt = nearest;
+            // });
+
+  return polyline
+}
+```
+
+
+<!------------------
+Mouseover tooltip
+-------------------->
+
+```{ojs}
+function tooltipSummit(feature){
+  const tooltipMessage = `<b>${feature.properties.nom}</b><br><i>${label_click_map}</i>`
+  return tooltipMessage
+}
+```
+
+```{ojs}
 function tooltipRoute(feature){
   const departure = (lang == "fr") ? "Départ de" : "Start from" ;
   const maxAlt = (lang == "fr") ? "altitude d'arrivée:" : "summit at" ;
@@ -128,3 +169,48 @@ function featureEvents(feature, layer) {
    });
 }
 ```
+
+<!---------------------
+Icons
+----------------------->
+
+```{ojs}
+function createIcon(feature, coordinates){
+        const color_value = getColorForCategory(feature.properties.category);
+        const iconUrl = `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color_value}.png`;
+                
+        var icon_color = new L.Icon({
+          iconUrl: iconUrl,
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        });
+        
+        return L.marker(coordinates, {icon: icon_color})
+
+}
+```
+
+
+```{ojs}
+function getColorForCategory(category) {
+  switch (category) {
+    case 'Cat 1':
+      return 'blue';
+    case 'Cat 2':
+      return 'green';
+    case 'Cat 3':
+      return 'yellow';
+    case 'Cat 4':
+      return 'orange';
+    case 'HC':
+      return 'red';
+    default:
+      return 'gray';
+  }
+}
+```
+
+

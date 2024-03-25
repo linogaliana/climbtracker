@@ -10,9 +10,10 @@ format:
       gutter-width: 0.5rem
 ---
 
-{{< include /page1/_labels.qmd >}}
-{{< include /page1/_inputs.qmd >}}
+{{< include /page1/_data.qmd >}}
 {{< include /page1/_globals.qmd >}}
+{{< include /page1/_inputs.qmd >}}
+{{< include /page1/_labels.qmd >}}
 {{< include /page1/_leaflet_functions.qmd >}}
 
 
@@ -25,12 +26,14 @@ First block: mode & lang
 //| label: head-page
 html
 `
+<div class="lang-selector">${viewof lang}</div>
 <div class="container">
   <div class="mode-selector">${viewof mode}</div>
-  <p>${switch_label}<div class="lang-selector">${viewof lang}</div></p>
 <div/>
 `
 ```
+
+
 
 <!------------------------
 Second block: filters or search
@@ -84,157 +87,17 @@ html`
   </div>
   <div style="width: 58%;">
     <div id="available-ascent">
-    <div><i>Ascensions correspondant à la recherche</i></div>
+    <div><i>${finding_ascent_label}</i></div>
     <br>
     ${table_selected}
     <br>
     </div>
-  <div id="statsElement"><i>Pas d'ascension sélectionnée, cliquer sur la carte pour afficher le profil de l'ascension.</i></div>
+  <div id="statsElement"><i>${no_ascent_label}</i></div>
   </div>
 </div>
 `
 ```
 
-
-
-```{ojs}
-printed_points = {
-  let printed_points;
-  if (mode === "explorer") {
-      printed_points = geo.filter(sommets, (d) => filter_active_width(d, filter_choice));
-  } else {
-      const searchIds = search.map(s => s.id);
-      printed_points = geo.filter(sommets, (d) => searchIds.includes(d.id));
-  }
-  return printed_points
-}
-```
-
-
-
-
-```{ojs}
-function rank_ascent(sommetsGeoJson, variableToPlot, selectedClimb, lang = "fr"){
- const namelabel = (lang == "fr") ? "Ascension" : "Ascent" 
- const gainlabel = (lang == "fr") ? "Dénivelé positif" : "Elevation gain" 
- const massiflabel = (lang == "fr") ? "Massif" : "Mountain side" 
- const percentlabel = (lang == "fr") ? "Pente moyenne" : "Average slope" 
- let p = Plot.plot({
-  color: {
-      type: "sequential",
-      scheme: "Turbo"
-    },
-    marks: [
-      Plot.ruleX(
-        sommetsGeoJson.features.map(d=>d.properties),
-        {
-          x: variableToPlot, stroke: variableToPlot,
-          channels: {
-            nom: {label: namelabel, value: "nom"},
-            deniv: {label: gainlabel, value: (d) => `${d.denivellation}m`},
-            massif: {label: massiflabel, value: "massif"},
-            percent: {value: (d) => `${d.percent_moyen}%`, label: percentlabel},
-            },
-          tip: {
-            format: {
-              stroke : false
-            },
-            anchor: "top"
-          },
-          strokeOpacity: 0.2}
-      ),
-      Plot.ruleX([selectedClimb], {x : variableToPlot, stroke: "red", strokeWidth: 2})
-    ]
-  })
-  return p
-}
-```
-
-
-```{ojs}
-widget_to_print = {
-  switch (filter_choice) {
-    case filter_checkbox_length:
-      console.log("Choosing filter by length")
-      return Inputs.bind(
-          Range([1, max_length], {unit: "km"}),
-          viewof climb_length
-      )
-    case filter_checkbox_deniv:
-      console.log("Choosing filter by height gain")
-      return Inputs.bind(
-        Range([1, max_denivelation], {unit: "m"}),
-        viewof climb_height
-      )
-    case filter_checkbox_category:
-      console.log("Choosing filter by category")
-      return Inputs.bind(
-        Inputs.checkbox(
-          categories,
-          {
-            sort: "descending",
-            value: ["HC", "Cat 1"],
-            //label: category_label
-          }
-        ),
-        viewof category
-      )
-    case filter_checkbox_slope:
-      console.log("Choosing filter by average slope")
-      return Inputs.bind(
-        Range([0, max_slope], {unit: "%", step: 0.2}),
-        viewof climb_slope
-      )
-    default:
-      return false
-  }
-}
-
-function filter_active_width(d, widget) {
-  switch (widget) {
-    case filter_checkbox_deniv:
-      return d.denivellation > climb_height;
-    case filter_checkbox_length:
-      return d.longueur > climb_length;
-    case filter_checkbox_category:
-      return category.includes(d.category);
-    case filter_checkbox_slope:
-      return d.percent_moyen > climb_slope;
-    default:
-      return false; // or any default case handling you prefer
-  }
-}
-
-```
-
-
-
-
-```{ojs}
-function getColorForCategory(category) {
-  switch (category) {
-    case 'Cat 1':
-      return 'blue';
-    case 'Cat 2':
-      return 'green';
-    case 'Cat 3':
-      return 'yellow';
-    case 'Cat 4':
-      return 'orange';
-    case 'HC':
-      return 'red';
-    default:
-      return 'gray';
-  }
-}
-```
-
-```{ojs}
-function tooltipSummit(feature){
-  const tooltipMessage = `<b>${feature.properties.nom}</b><br><i>Cliquer sur ce sommet pour en savoir plus</i>`
-  return tooltipMessage
-}
-```
 
 ```{ojs}
 leafletmap = {
@@ -249,13 +112,15 @@ leafletmap = {
   L.control.layers(baseLayers).addTo(map);
 
 
-    // Define a function that will be called for each feature in your GeoJSON layer
+  // Define a function that will be called for each feature in your GeoJSON layer
   function popEventSummit(feature, layer) {
 
       // Add mouseover event listener
       layer.on('mouseover', function() {
         const tooltipMessage = tooltipSummit(feature) ;
-        layer.bindTooltip(tooltipMessage, {permanent: false, direction: "auto"}).openTooltip();
+        layer.bindTooltip(
+          tooltipMessage, {permanent: false, direction: "auto"}
+          ).openTooltip();
       });
 
       // Create popup for ascent summit
@@ -276,16 +141,8 @@ leafletmap = {
         statsElement.innerHTML = container_ascent(feature, lang) ;
         availableAscents.innerHTML = "" ;
 
-
         // Fetch route for selected ascent
-        const id = feature.properties.id;
-        const polylineUrl = `https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/split/${id}.geojson`;
-
-        // Create a polyline
-        fetch(polylineUrl)
-          .then(response => response.json())
-          .then(data => ascentTrackPolyline(map, data, feature))
-          .catch(error => console.error('Error loading the polyline GeoJSON:', error));
+        fetchAndDisplayAscentRoute(map, feature, 'red');
       });
 
   }
@@ -309,89 +166,19 @@ leafletmap = {
 
 
 ```{ojs}
-function createIcon(feature, coordinates){
-        const color_value = getColorForCategory(feature.properties.category);
-        const iconUrl = `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color_value}.png`;
-                
-        var icon_color = new L.Icon({
-          iconUrl: iconUrl,
-          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-          shadowSize: [41, 41]
-        });
-        
-        return L.marker(coordinates, {icon: icon_color})
+function fetchAndDisplayAscentRoute(map, feature, color = 'green') {
+  const id = feature.properties.id;
+  const polylineUrl = `https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/split/${id}.geojson`;
 
+  fetch(polylineUrl)
+    .then(response => response.json())
+    .then(data => {
+      // Modify the ascentTrackPolyline function or create a similar one to accept a color parameter
+      ascentTrackPolyline(map, data, feature, color);
+    })
+    .catch(error => console.error('Error loading the polyline GeoJSON:', error));
 }
 ```
-
-```{ojs}
-function ascentTrackPolyline(map, data, feature){
-            // Create a polyline from the GeoJSON and add it to the map
-            const polyline = L.geoJson(data, {
-              color: 'red', // You can customize the polyline's style here
-              weight: 3
-            }).addTo(map);
-
-            // Mouseover for ascent characteristics 
-            polyline.on('mouseover', function() {
-              this.bindTooltip(
-                 tooltipRoute(feature),
-                {permanent: false, direction: "top"}).openTooltip();
-              
-            });
-
-            // Get mouse location on the map to interactively update a figure
-            const points = toGeoJSONFeatureCollection(data);
-            
-            // polyline.on('mousemove', function(e) {
-              // var nearest = get_nearest_point(e, points)
-              // Update the mutable hover_alt to the altitude
-              // mutable hover_alt = nearest;
-            // });
-
-  return polyline
-}
-```
-
-```{ojs}
-function get_nearest_point(e, points){
-  // 'e.latlng' gives you the LatLng object of where the mouse currently is
-  const mouseLatLng = e.latlng;
-  const targetPoint = turf.point([mouseLatLng.lng, mouseLatLng.lat]);
-  var nearest = turf.nearestPoint(targetPoint, points);
-  return nearest
-}
-```
-
-```{ojs}
-// Function to convert array of coordinate arrays to a FeatureCollection
-function toGeoJSONFeatureCollection(data) {
-  const coordsArray = data.features.map(d => d.geometry.coordinates);
-  // Map each coordinate array to a GeoJSON Point feature
-  const features = coordsArray.flat().map(coords => ({
-    "type": "Feature",
-    "properties": {
-      // If you have properties to include, add them here
-      "altitude": coords[2]  // Example property
-    },
-    "geometry": {
-      "type": "Point",
-      "coordinates": [coords[0], coords[1]]  // Only longitude and latitude are used for Point
-    }
-  }));
-
-  // Return as a FeatureCollection
-  return {
-    "type": "FeatureCollection",
-    "features": features
-  };
-}
-```
-
-
 
 ```{ojs}
 {

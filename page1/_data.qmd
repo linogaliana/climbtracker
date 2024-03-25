@@ -36,3 +36,16 @@ details_altitude = selectedRoute.features[0].geometry.coordinates.map((coord, in
   return { index: index, altitude: coord[2]}
 });
 ```
+
+```{ojs}
+printed_points = {
+  let printed_points;
+  if (mode === "explorer") {
+      printed_points = geo.filter(sommets, (d) => filter_active_width(d, filter_choice));
+  } else {
+      const searchIds = search.map(s => s.id);
+      printed_points = geo.filter(sommets, (d) => searchIds.includes(d.id));
+  }
+  return printed_points
+}
+```

@@ -178,7 +178,7 @@ input[type=range] {
   }
 
 
-  /* Style for the tooltip container */
+/* Style for the tooltip container */
 .info-container {
   position: relative;
   display: inline-block;

@@ -14,7 +14,7 @@ website:
 format:
   html:
     theme:
-      light: [flatly]
+      light: [flatly, style.scss]
     css: styles.css
     toc: true
 

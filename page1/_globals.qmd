@@ -43,8 +43,88 @@ classificationDetails = `
 `
 ```
 
+<!--------------
+Generic functions
+---------------->
+
+```{ojs}
+function get_nearest_point(e, points){
+  // 'e.latlng' gives you the LatLng object of where the mouse currently is
+  const mouseLatLng = e.latlng;
+  const targetPoint = turf.point([mouseLatLng.lng, mouseLatLng.lat]);
+  var nearest = turf.nearestPoint(targetPoint, points);
+  return nearest
+}
+```
+
+```{ojs}
+// Function to convert array of coordinate arrays to a FeatureCollection
+function toGeoJSONFeatureCollection(data) {
+  const coordsArray = data.features.map(d => d.geometry.coordinates);
+  // Map each coordinate array to a GeoJSON Point feature
+  const features = coordsArray.flat().map(coords => ({
+    "type": "Feature",
+    "properties": {
+      // If you have properties to include, add them here
+      "altitude": coords[2]  // Example property
+    },
+    "geometry": {
+      "type": "Point",
+      "coordinates": [coords[0], coords[1]]  // Only longitude and latitude are used for Point
+    }
+  }));
+
+  // Return as a FeatureCollection
+  return {
+    "type": "FeatureCollection",
+    "features": features
+  };
+}
+```
+
 ```{ojs}
 unique = (arr) => [...new Set(arr)]
+```
+
+<!-----------------
+Plotting functions
+------------------->
+
+```{ojs}
+function rank_ascent(sommetsGeoJson, variableToPlot, selectedClimb, lang = "fr"){
+ const namelabel = (lang == "fr") ? "Ascension" : "Ascent" 
+ const gainlabel = (lang == "fr") ? "Dénivelé positif" : "Elevation gain" 
+ const massiflabel = (lang == "fr") ? "Massif" : "Mountain side" 
+ const percentlabel = (lang == "fr") ? "Pente moyenne" : "Average slope" 
+ let p = Plot.plot({
+  color: {
+      type: "sequential",
+      scheme: "Turbo"
+    },
+    marks: [
+      Plot.ruleX(
+        sommetsGeoJson.features.map(d=>d.properties),
+        {
+          x: variableToPlot, stroke: variableToPlot,
+          channels: {
+            nom: {label: namelabel, value: "nom"},
+            deniv: {label: gainlabel, value: (d) => `${d.denivellation}m`},
+            massif: {label: massiflabel, value: "massif"},
+            percent: {value: (d) => `${d.percent_moyen}%`, label: percentlabel},
+            },
+          tip: {
+            format: {
+              stroke : false
+            },
+            anchor: "top"
+          },
+          strokeOpacity: 0.2}
+      ),
+      Plot.ruleX([selectedClimb], {x : variableToPlot, stroke: "red", strokeWidth: 2})
+    ]
+  })
+  return p
+}
 ```
 
 
@@ -70,3 +150,5 @@ geo = require("geotoolbox@2")
 //| echo: false
 Plot = require("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.13/dist/plot.umd.min.js")
 ```
+
+

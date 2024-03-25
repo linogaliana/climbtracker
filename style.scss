@@ -1,2 +1,31 @@
 /*-- scss:defaults --*/
-$navbar-bg: radial-gradient(circle, #cb293c 20%, transparent 20%)  ;
+
+/*-- scss:rules --*/
+.button_lang {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0.25em 0em;
+    width: 5em;
+    transition: 0.25s ease;
+    margin-left: 5px;
+    padding: 5px 10px;
+    border: none;
+}
+  
+  .button_lang:hover {
+    background: #b5d6b2;
+    transition: 0.25s ease;
+  }
+  
+  .current_lang {
+    background: #b5d6b2;
+  }
+
+
+/* This positions the form at the top right corner of the page */
+.form-language-switcher {
+    margin-left: auto; 
+    margin-right: 0;
+    float: right;
+}
+  
