@@ -5,6 +5,9 @@ Window height
 ```{ojs}
 availableHeight = window.innerHeight
 screenHeight = 0.9*(availableHeight - document.getElementById("quarto-header").offsetHeight)
+availableWidth = window.innerWidth
+mapWidth = (width > 400) ? 0.4*width : 0.95*width 
+mapHeight = (width > 400) ? 0.85*screenHeight : 0.5*screenHeight
 ```
 
 <!--------------------------

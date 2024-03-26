@@ -34,7 +34,6 @@ html
 ```
 
 
-
 <!------------------------
 Second block: filters or search
 ------------------------->
@@ -76,34 +75,47 @@ Main block
 - Right: ascent characteristics
 ------------------------->
 
-
 ```{ojs}
 //| output: true
-html`
-<div class="main-container">
-  <div id = "leafletmap" style="width: 40%;">${leafletmap}</div>
-  <div class="column spacer" style="width: 2%;">
-      <!-- Spacer column -->
-  </div>
-  <div style="width: 58%;">
-    <div id="available-ascent">
-    <div><i>${finding_ascent_label}</i></div>
-    <br>
-    ${table_selected}
-    <br>
+(width > 400) ?
+  html`
+  <div class="main-container">
+    <div id = "leafletmap" style="width: 40%;">${leafletmap}</div>
+    <div class="column spacer" style="width: 2%;">
+        <!-- Spacer column -->
     </div>
-  <div id="statsElement"><i>${no_ascent_label}</i></div>
+    <div style="width: 58%;">
+      <div id="available-ascent">
+      <div><i>${finding_ascent_label}</i></div>
+      <br>
+      ${table_selected}
+      <br>
+      </div>
+    <div id="statsElement"><i>${no_ascent_label}</i></div>
+    </div>
   </div>
-</div>
-`
+  ` :
+  html`
+    <div id = "leafletmap" style="width: 100%;">${leafletmap}</div>
+    <div style="width: 100%;">
+      <div id="available-ascent">
+      <div><i>${finding_ascent_label}</i></div>
+      <br>
+      ${table_selected}
+      <br>
+      </div>
+    <div id="statsElement"><i>${no_ascent_label}</i></div>
+    </div>
+  `
 ```
+
 
 
 ```{ojs}
 leafletmap = {
 
   // Create a container element for leaflet map
-  let parent = DOM.element('div', { style: `width:${0.4*width}px;height:${0.85*screenHeight}px` });
+  let parent = DOM.element('div', { style: `width:${mapWidth}px;height:${mapHeight}px` });
   yield parent;
   var map = L.map(parent).setView([0, 0], 5);
 
@@ -125,7 +137,7 @@ leafletmap = {
 
       // Create popup for ascent summit
       layer.bindPopup(
-        popUpSummit(feature, lang)
+        popUpSummit(feature, lang, false)
       );
 
      layer.on({
@@ -138,7 +150,7 @@ leafletmap = {
         const availableAscents = document.getElementById('available-ascent');        
         
         // Update the content of 'statsElement' with the desired statistics from 'feature.properties'
-        statsElement.innerHTML = container_ascent(feature, lang) ;
+        statsElement.innerHTML = container_ascent(feature, lang, width) ;
         availableAscents.innerHTML = "" ;
 
         // Fetch route for selected ascent

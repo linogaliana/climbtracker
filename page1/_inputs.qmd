@@ -106,8 +106,8 @@ french.addEventListener("click", function() {
 startStop = () => {
 const buttons = html`
 <form class="form-language-switcher">
-  <input value="Français 🇫🇷" type="button" name="stop" id="button_french" class="button_lang current_lang">
-  <input value="English 🇬🇧🇺🇸" type="button" name="start" id="button_english" class="button_lang">
+  <input value="🇫🇷" type="button" name="stop" id="button_french" class="button_lang current_lang">
+  <input value="🇬🇧 🇺🇸" type="button" name="start" id="button_english" class="button_lang">
 </form>
 `
 buttons.value = "fr"
@@ -138,12 +138,12 @@ return buttons
 ```
 
 <!-----------
-
+Other inputs
 ------------->
 
 ```{ojs}
 viewof search = Inputs.search(
-  cols, {placeholder: "Rechercher un col", datalist: ["nom", "départ", "massif"]}
+  cols, {placeholder: label_search_widget, datalist: ["nom", "départ", "massif"]}
 )
 ```
 

@@ -47,4 +47,5 @@ no_ascent_label = (lang == "fr") ? "Pas d'ascension sélectionnée, cliquer sur 
 
 ```{ojs}
 label_click_map = (lang == "fr") ? "Cliquer sur ce sommet pour en savoir plus" : "Click to learn more on that ascent"
+label_search_widget = (lang == "fr") ? "Rechercher un col" : "Finding an ascent"
 ```
