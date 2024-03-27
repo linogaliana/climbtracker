@@ -39,7 +39,7 @@ on summit
 
 
 ```{ojs}
-function popUpSummit(feature, lang, bigscreen){
+function popUpSummit(feature, lang){
   const AscentName = (lang == "fr") ? "Ascension" : "Ascent" ;
   const departure = (lang == "fr") ? "Départ" : "Start" ;
   const maxAlt = (lang == "fr") ? "Sommet" : "Summit" ;
@@ -58,49 +58,8 @@ function popUpSummit(feature, lang, bigscreen){
           <b>${maxSlope}</b>: ${feature.properties.percent_maximal}%<br>
           <a href="${feature.properties.href}" target="_blank">${hrefText} <code>https://cols-cyclisme.com/</code></a>
 ` 
-  if (bigscreen == true){
-    return popup
-  }
+  return popup
 
-  const popupsmall = `
-    <table>
-      <tr>
-        <td><b>${AscentName}</b>:</td>
-        <td>${feature.properties.nom}</td>
-      </tr>
-      <tr>
-        <td><b>${departure}</b>:</td>
-        <td>${feature.properties.depart} (${feature.properties.massif})</td>
-      </tr>
-      <tr>
-        <td><b>${maxAlt}</b>:</td>
-        <td>${feature.properties.alt}m</td>
-      </tr>
-      <tr>
-        <td><b>${climbLength}</b>:</td>
-        <td>${feature.properties.longueur}km</td>
-      </tr>
-      <tr>
-        <td><b>${gain}</b>:</td>
-        <td>${feature.properties.denivellation}m (${feature.properties.category})</td>
-      </tr>
-      <tr>
-        <td><b>${averageSlope}</b>:</td>
-        <td>${feature.properties.percent_moyen}%</td>
-      </tr>
-      <tr>
-        <td><b>${maxSlope}</b>:</td>
-        <td>${feature.properties.percent_maximal}%</td>
-      </tr>
-      <tr>
-        <td colspan="2">
-          <a href="${feature.properties.href}" target="_blank">${hrefText} <code>https://cols-cyclisme.com/</code></a>
-        </td>
-      </tr>
-    </table>
-  `;
-
-  return popupsmall
 }
 ```
 

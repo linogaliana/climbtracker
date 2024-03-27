@@ -89,6 +89,12 @@ function toGeoJSONFeatureCollection(data) {
 unique = (arr) => [...new Set(arr)]
 ```
 
+```{ojs}
+function sparkbar(max) {
+  return x => htl.html`<div class="sparkbar" style="width: ${100 * x / max}%;">${x.toLocaleString("en")}</div>`
+}
+```
+
 <!-----------------
 Plotting functions
 ------------------->

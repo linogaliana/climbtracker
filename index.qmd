@@ -50,14 +50,14 @@ selectors = {
     <div class="container">
       <div class="select-container">
         <div>${viewof filter_choice}</div>
-        <div>${widget_to_print}</div>
+        <div class="visible-widget">${widget_to_print}</div>
       </div>
     </div>
     `
     return selectors
   }
 
-  selectors = html`<div>${viewof search}</div>`
+  selectors = html`<div class="search-widget">${viewof search}</div>`
   return selectors
 }
 ```
@@ -68,6 +68,8 @@ selectors = {
 //| label: input-selector
 html`${selectors}`
 ```
+
+
 
 <!------------------------
 Main block
@@ -137,7 +139,7 @@ leafletmap = {
 
       // Create popup for ascent summit
       layer.bindPopup(
-        popUpSummit(feature, lang, false)
+        popUpSummit(feature, lang)
       );
 
      layer.on({

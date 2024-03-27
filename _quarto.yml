@@ -6,15 +6,18 @@ website:
   navbar:
     left:
       - href: index.qmd
-        text: Home
+        text: Explorateur d'ascension
       - href: around.qmd
+        text: Explorateur de lieux
       - href: statistics.qmd
+        text: Espace des statistiques
       - about.qmd
 
 format:
   html:
     theme:
       light: [flatly, style.scss]
+      dark: [darkly, style.scss]
     css: styles.css
     toc: true
 
