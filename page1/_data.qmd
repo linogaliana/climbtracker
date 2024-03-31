@@ -1,44 +1,5 @@
-```{ojs}
-raw = {
-  // URLs of the GeoJSON files
-  const geojsonUrl1 = "https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/alpes-nord-sommets.geojson";
-  const geojsonUrl2 = "https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/alpes-sud-sommets.geojson"; // Replace this with the URL of the second GeoJSON
-
-  // Fetch the first GeoJSON
-  const fetchGeoJSON1 = fetch(geojsonUrl1).then(response => response.json());
-
-  // Fetch the second GeoJSON
-  const fetchGeoJSON2 = fetch(geojsonUrl2).then(response => response.json());
-
-  // When both GeoJSONs are fetched, combine them
-  let raw = Promise.all([fetchGeoJSON1, fetchGeoJSON2]).then(values => {
-    const combinedFeatures = [...values[0].features, ...values[1].features]; // Combine features from both GeoJSON files
-
-    // Create a new GeoJSON object with combined features
-    const combinedGeoJSON = {
-      type: "FeatureCollection",
-      features: combinedFeatures
-    };
-
-    return combinedGeoJSON
-
-  }).catch(error => {
-    console.error("Error fetching or combining GeoJSONs:", error);
-  });
-
-  return raw
-}
-```
 
 ```{ojs}
-//raw = fetch(
-//    "https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/alpes-nord-sommets.geojson"
-//  ).then(
-//    (response) => response.json()
-//  )
-sommets = geo.filter(raw, (d) => !d.vtt)
-cols = sommets.features.map(d=>d.properties)
-
 max_length = d3.max(
   sommets.features.map(d=>d.properties.longueur)
 )

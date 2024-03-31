@@ -1,15 +1,3 @@
-<!-------------
-Window height
--------------->
-
-```{ojs}
-availableHeight = window.innerHeight
-screenHeight = 0.9*(availableHeight - document.getElementById("quarto-header").offsetHeight)
-availableWidth = window.innerWidth
-mapWidth = (width > 400) ? 0.4*width : 0.95*width 
-mapHeight = (width > 400) ? 0.85*screenHeight : 0.5*screenHeight
-```
-
 <!--------------------------
 Mutable values overriden by actions
 ---------------------------->
@@ -19,71 +7,6 @@ mutable selectedClimb = null
 ```
 
 
-<!------------------------
-Classification details
--------------------------->
-
-```{ojs}
-category_label = html`<span class="info-container">
-  <span style="color: orange" class="infopicto">${getIconSvg("info")}
-    <span class="tooltip-content">
-      ${lang == 'fr' ? 'Version simplifiée de la classification UCI <br>Dénivelé:' : 'Simplified UCI classification<br>Gain:'}
-      ${classificationDetails}
-    </span>
-  </span>
-</span>`
-```
-
-```{ojs}
-classificationDetails = `
-<ul>
-  <li>Cat 4: 80 - 159m</li>
-  <li>Cat 3: 160 - 319m</li>
-  <li>Cat 2: 320 - 639m</li>
-  <li>Cat 1: 640 - 799m</li>
-  <li>HC: 800m and more </li>
-</ul>
-`
-```
-
-<!--------------
-Generic functions
----------------->
-
-```{ojs}
-function get_nearest_point(e, points){
-  // 'e.latlng' gives you the LatLng object of where the mouse currently is
-  const mouseLatLng = e.latlng;
-  const targetPoint = turf.point([mouseLatLng.lng, mouseLatLng.lat]);
-  var nearest = turf.nearestPoint(targetPoint, points);
-  return nearest
-}
-```
-
-```{ojs}
-// Function to convert array of coordinate arrays to a FeatureCollection
-function toGeoJSONFeatureCollection(data) {
-  const coordsArray = data.features.map(d => d.geometry.coordinates);
-  // Map each coordinate array to a GeoJSON Point feature
-  const features = coordsArray.flat().map(coords => ({
-    "type": "Feature",
-    "properties": {
-      // If you have properties to include, add them here
-      "altitude": coords[2]  // Example property
-    },
-    "geometry": {
-      "type": "Point",
-      "coordinates": [coords[0], coords[1]]  // Only longitude and latitude are used for Point
-    }
-  }));
-
-  // Return as a FeatureCollection
-  return {
-    "type": "FeatureCollection",
-    "features": features
-  };
-}
-```
 
 ```{ojs}
 unique = (arr) => [...new Set(arr)]
@@ -137,27 +60,5 @@ function rank_ascent(sommetsGeoJson, variableToPlot, selectedClimb, lang = "fr")
 ```
 
 
-<!--------------
-Environment
---------------->
-
-```{ojs}
-import {getIconSvg} from '@saneef/feather-icons'
-```
-
-
-```{ojs}
-turf = require("@turf/turf@6")
-```
-
-```{ojs}
-geo = require("geotoolbox@2")
-```
-
-
-```{ojs}
-//| echo: false
-Plot = require("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.13/dist/plot.umd.min.js")
-```
 
 

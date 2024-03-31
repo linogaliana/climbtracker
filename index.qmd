@@ -1,20 +1,19 @@
 ---
 echo: false
 output: false
-format:
-  html:
-    grid:
-      sidebar-width: 0px
-      body-width: 2000px
-      margin-width: 0px
-      gutter-width: 0.5rem
 ---
+
+{{< include /common/_data.qmd >}}
+{{< include /common/_globals.qmd >}}
+{{< include /common/_inputs.qmd >}}
+{{< include /common/_labels.qmd >}}
+{{< include /common/_leaflet_functions.qmd >}}
 
 {{< include /page1/_data.qmd >}}
 {{< include /page1/_globals.qmd >}}
 {{< include /page1/_inputs.qmd >}}
 {{< include /page1/_labels.qmd >}}
-{{< include /page1/_leaflet_functions.qmd >}}
+
 
 
 <!------------------------
@@ -193,6 +192,7 @@ function fetchAndDisplayAscentRoute(map, feature, color = 'green') {
     .catch(error => console.error('Error loading the polyline GeoJSON:', error));
 }
 ```
+
 
 ```{ojs}
 {

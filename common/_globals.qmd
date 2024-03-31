@@ -1,0 +1,200 @@
+<!-------------
+Window height
+-------------->
+
+```{ojs}
+availableHeight = window.innerHeight
+screenHeight = 0.9*(availableHeight - document.getElementById("quarto-header").offsetHeight)
+availableWidth = window.innerWidth
+mapWidth = (width > 400) ? 0.4*width : 0.95*width 
+mapHeight = (width > 400) ? 0.85*screenHeight : 0.5*screenHeight
+```
+
+
+<!-----------------------------
+Functions for inputs
+------------------------------->
+
+
+```{ojs}
+function Range(range, options = {}) {
+  const [min, max] = range;
+  const {
+    className = "Range",
+    vertical = false,
+    label = null,
+    format = (x) => +x,
+    step = 1,
+    value = (min + max) / 2,
+    style = "",
+    labelStyle = "",
+    rangeStyle = "",
+    valueStyle = "",
+    unit = "" // New option for specifying a unit
+  } = options;
+  const rangeWrap = htl.html`<div class=${className} style="${style}"></div>`;
+  Object.assign(rangeWrap.style, {
+    display: "inline-flex",
+    position: "relative",
+    userSelect: "none",
+    alignItems: "center",
+    gap: "4px"
+  });
+  const valueDisplay = htl.html`<output style="${valueStyle}"></output>`;
+  Object.assign(valueDisplay.style, {
+    display: "inline-block"
+  });
+  const rangeInput = htl.html`<input type=range min=${min} max=${max} step=${step} value=${value} style=${rangeStyle}></input>`;
+  Object.assign(rangeInput.style, {
+    display: "inline-block"
+  });
+  if (vertical) {
+    rangeInput.setAttribute("orient", "vertical");
+    rangeInput.style.writingMode = "bt-lr";
+    rangeInput.style["-webkit-appearance"] = "slider-vertical";
+    rangeInput.style.width = "8px";
+  }
+
+  rangeWrap.append(rangeInput, valueDisplay);
+
+  if (label) {
+    const labelElement = htl.html`<label style=${labelStyle}>${label}</label>`;
+    rangeWrap.prepend(labelElement);
+  }
+
+  rangeInput.oninput = () => {
+    // Append the unit to the formatted number
+    valueDisplay.textContent = `${format(rangeInput.valueAsNumber)}${unit}`;
+    rangeWrap.value = rangeWrap.valueAsNumber = rangeInput.valueAsNumber;
+    rangeWrap.dispatchEvent(new CustomEvent("input"));
+  };
+
+  rangeInput.oninput(); // Initialize the displayed value
+  return rangeWrap;
+}
+```
+
+```{ojs}
+startStop = () => {
+const buttons = html`
+<form class="form-language-switcher">
+  <input value="🇫🇷" type="button" name="stop" id="button_french" class="button_lang current_lang">
+  <input value="🇬🇧 🇺🇸" type="button" name="start" id="button_english" class="button_lang">
+</form>
+`
+buttons.value = "fr"
+
+// French button  
+buttons.stop.onclick = event => {
+  buttons.value = "fr";
+  event.preventDefault(); // Don’t submit the form.
+  buttons.dispatchEvent(new CustomEvent("input"));                      
+  const french = document.getElementById("button_french") ;
+  const english = document.getElementById("button_english") ;
+  french.classList.add("current_lang")
+  english.classList.remove("current_lang")
+}
+// English button  
+buttons.start.onclick = event => {
+  buttons.value = "en";
+  event.preventDefault(); // Don’t submit the form.
+  buttons.dispatchEvent(new CustomEvent("input")); 
+  const french = document.getElementById("button_french") ;
+  const english = document.getElementById("button_english") ;
+  english.classList.add("current_lang")
+  french.classList.remove("current_lang")
+}
+
+return buttons
+}
+```
+
+<!------------------------
+Classification details
+-------------------------->
+
+```{ojs}
+category_label = html`<span class="info-container">
+  <span style="color: orange" class="infopicto">${getIconSvg("info")}
+    <span class="tooltip-content">
+      ${lang == 'fr' ? 'Version simplifiée de la classification UCI <br>Dénivelé:' : 'Simplified UCI classification<br>Gain:'}
+      ${classificationDetails}
+    </span>
+  </span>
+</span>`
+```
+
+```{ojs}
+classificationDetails = `
+<ul>
+  <li>Cat 4: 80 - 159m</li>
+  <li>Cat 3: 160 - 319m</li>
+  <li>Cat 2: 320 - 639m</li>
+  <li>Cat 1: 640 - 799m</li>
+  <li>HC: 800m and more </li>
+</ul>
+`
+```
+
+<!--------------
+Generic functions
+---------------->
+
+```{ojs}
+function get_nearest_point(e, points){
+  // 'e.latlng' gives you the LatLng object of where the mouse currently is
+  const mouseLatLng = e.latlng;
+  const targetPoint = turf.point([mouseLatLng.lng, mouseLatLng.lat]);
+  var nearest = turf.nearestPoint(targetPoint, points);
+  return nearest
+}
+```
+
+```{ojs}
+// Function to convert array of coordinate arrays to a FeatureCollection
+function toGeoJSONFeatureCollection(data) {
+  const coordsArray = data.features.map(d => d.geometry.coordinates);
+  // Map each coordinate array to a GeoJSON Point feature
+  const features = coordsArray.flat().map(coords => ({
+    "type": "Feature",
+    "properties": {
+      // If you have properties to include, add them here
+      "altitude": coords[2]  // Example property
+    },
+    "geometry": {
+      "type": "Point",
+      "coordinates": [coords[0], coords[1]]  // Only longitude and latitude are used for Point
+    }
+  }));
+
+  // Return as a FeatureCollection
+  return {
+    "type": "FeatureCollection",
+    "features": features
+  };
+}
+```
+
+
+<!--------------
+Environment
+--------------->
+
+```{ojs}
+import {getIconSvg} from '@saneef/feather-icons'
+```
+
+
+```{ojs}
+turf = require("@turf/turf@6")
+```
+
+```{ojs}
+geo = require("geotoolbox@2")
+```
+
+
+```{ojs}
+//| echo: false
+Plot = require("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.13/dist/plot.umd.min.js")
+```

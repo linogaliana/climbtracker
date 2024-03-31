@@ -4,6 +4,7 @@ project:
 website:
   title: "Mysite"
   navbar:
+    pinned: true
     left:
       - href: index.qmd
         text: Explorateur d'ascension
@@ -15,10 +16,15 @@ website:
 
 format:
   html:
+    grid:
+      sidebar-width: 0px
+      body-width: 2000px
+      margin-width: 0px
+      gutter-width: 0.5rem
     theme:
       light: [flatly, style.scss]
       dark: [darkly, style.scss]
-    css: styles.css
+    css: [styles.css, leafletban.css]
     toc: true
 
 

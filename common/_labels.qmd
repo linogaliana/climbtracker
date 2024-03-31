@@ -1,3 +1,24 @@
+```{ojs}
+label_click_map = (lang == "fr") ? "Cliquer sur ce sommet pour en savoir plus" : "Click to learn more on that ascent"
+```
+
+```{ojs}
+no_ascent_label = (lang == "fr") ? "Pas d'ascension sélectionnée, cliquer sur la carte pour afficher le profil de l'ascension." : "No selected ascent, click on the map to see ascent details."
+```
+
+```{ojs}
+finding_ascent_label = (lang == "fr") ? "Ascensions correspondant à la recherche." : "Ascent corresponding to search criterium."
+```
+
+```{ojs}
+header_table_name = (lang == "fr") ? "Ascension" : "Ascent"
+header_table_departure = (lang == "fr") ? "Départ" : "Start"
+header_table_alt = (lang == "fr") ? "Altitude d'arrivée" : "Arrival height"
+header_table_avgpercent = (lang == "fr") ? "Pente moyenne (%)" : "Average slope (%)"
+header_table_maxpercent = (lang == "fr") ? "Pente maximale (%)" : "Maximum slope (%)"
+```
+
+
 <!----------------------
 Choices input choice
 ------------------------>
@@ -31,21 +52,8 @@ filter_checkbox_length = (lang == "fr") ? `Longueur de l'ascension` : "Ascension
 filter_checkbox_slope = (lang == "fr") ? "Pente moyenne" : "Average slope"
 ```
 
-```{ojs}
-header_table_name = (lang == "fr") ? "Ascension" : "Ascent"
-header_table_departure = (lang == "fr") ? "Départ" : "Start"
-header_table_alt = (lang == "fr") ? "Altitude d'arrivée" : "Arrival height"
-header_table_avgpercent = (lang == "fr") ? "Pente moyenne (%)" : "Average slope (%)"
-header_table_maxpercent = (lang == "fr") ? "Pente maximale (%)" : "Maximum slope (%)"
-```
-
-```{ojs}
-finding_ascent_label = (lang == "fr") ? "Ascensions correspondant à la recherche." : "Ascent corresponding to search criterium."
-no_ascent_label = (lang == "fr") ? "Pas d'ascension sélectionnée, cliquer sur la carte pour afficher le profil de l'ascension." : "No selected ascent, click on the map to see ascent details."
-```
 
 
 ```{ojs}
-label_click_map = (lang == "fr") ? "Cliquer sur ce sommet pour en savoir plus" : "Click to learn more on that ascent"
 label_search_widget = (lang == "fr") ? "Rechercher un col" : "Finding an ascent"
 ```

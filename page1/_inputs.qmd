@@ -102,40 +102,6 @@ french.addEventListener("click", function() {
 );
 ```
 
-```{ojs}
-startStop = () => {
-const buttons = html`
-<form class="form-language-switcher">
-  <input value="🇫🇷" type="button" name="stop" id="button_french" class="button_lang current_lang">
-  <input value="🇬🇧 🇺🇸" type="button" name="start" id="button_english" class="button_lang">
-</form>
-`
-buttons.value = "fr"
-
-// French button  
-buttons.stop.onclick = event => {
-  buttons.value = "fr";
-  event.preventDefault(); // Don’t submit the form.
-  buttons.dispatchEvent(new CustomEvent("input"));                      
-  const french = document.getElementById("button_french") ;
-  const english = document.getElementById("button_english") ;
-  french.classList.add("current_lang")
-  english.classList.remove("current_lang")
-}
-// English button  
-buttons.start.onclick = event => {
-  buttons.value = "en";
-  event.preventDefault(); // Don’t submit the form.
-  buttons.dispatchEvent(new CustomEvent("input")); 
-  const french = document.getElementById("button_french") ;
-  const english = document.getElementById("button_english") ;
-  english.classList.add("current_lang")
-  french.classList.remove("current_lang")
-}
-
-return buttons
-}
-```
 
 <!-----------
 Other inputs
@@ -197,65 +163,3 @@ viewof category = Inputs.checkbox(
 ```
 
 
-<!-----------------------------
-Functions for inputs
-------------------------------->
-
-
-```{ojs}
-function Range(range, options = {}) {
-  const [min, max] = range;
-  const {
-    className = "Range",
-    vertical = false,
-    label = null,
-    format = (x) => +x,
-    step = 1,
-    value = (min + max) / 2,
-    style = "",
-    labelStyle = "",
-    rangeStyle = "",
-    valueStyle = "",
-    unit = "" // New option for specifying a unit
-  } = options;
-  const rangeWrap = htl.html`<div class=${className} style="${style}"></div>`;
-  Object.assign(rangeWrap.style, {
-    display: "inline-flex",
-    position: "relative",
-    userSelect: "none",
-    alignItems: "center",
-    gap: "4px"
-  });
-  const valueDisplay = htl.html`<output style="${valueStyle}"></output>`;
-  Object.assign(valueDisplay.style, {
-    display: "inline-block"
-  });
-  const rangeInput = htl.html`<input type=range min=${min} max=${max} step=${step} value=${value} style=${rangeStyle}></input>`;
-  Object.assign(rangeInput.style, {
-    display: "inline-block"
-  });
-  if (vertical) {
-    rangeInput.setAttribute("orient", "vertical");
-    rangeInput.style.writingMode = "bt-lr";
-    rangeInput.style["-webkit-appearance"] = "slider-vertical";
-    rangeInput.style.width = "8px";
-  }
-
-  rangeWrap.append(rangeInput, valueDisplay);
-
-  if (label) {
-    const labelElement = htl.html`<label style=${labelStyle}>${label}</label>`;
-    rangeWrap.prepend(labelElement);
-  }
-
-  rangeInput.oninput = () => {
-    // Append the unit to the formatted number
-    valueDisplay.textContent = `${format(rangeInput.valueAsNumber)}${unit}`;
-    rangeWrap.value = rangeWrap.valueAsNumber = rangeInput.valueAsNumber;
-    rangeWrap.dispatchEvent(new CustomEvent("input"));
-  };
-
-  rangeInput.oninput(); // Initialize the displayed value
-  return rangeWrap;
-}
-```
