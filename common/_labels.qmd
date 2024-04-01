@@ -69,8 +69,3 @@ label_find_adress = (lang == "fr") ?
   "1️⃣ Search for a location below 👇️"
 ```
 
-```{ojs}
-label_choose_radius = (lang == "fr") ?
-  "2️⃣ Choisissez un rayon, explorez la carte 👇️" :
-  "2️⃣ Choose a radius size and explore the map 👇️"
-```

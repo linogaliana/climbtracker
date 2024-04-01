@@ -1,4 +1,6 @@
 /*-- scss:defaults --*/
+$light-green: #b5d6b2 ;
+$rangebar-color: $light-green ;
 
 /*-- scss:rules --*/
 .button_lang {
@@ -13,7 +15,7 @@
 }
   
   .button_lang:hover {
-    background: #b5d6b2;
+    background: $light-green;
     transition: 0.25s ease;
   }
   
@@ -50,13 +52,13 @@ input[type=range]::-webkit-slider-runnable-track {
   cursor: pointer;
   animate: 0.2s;
   box-shadow: 0px 0px 0px #000000;
-  background: $primary;
+  background: $rangebar-color;
   border-radius: 1px;
   border: 0px solid #000000;
 }
 input[type=range]::-webkit-slider-thumb {
   box-shadow: 0px 0px 0px #520101;
-  border: 1px solid $navbar-bg;
+  border: 1px solid $rangebar-color;
   height: 18px;
   width: 18px;
   border-radius: 25px;
@@ -66,7 +68,7 @@ input[type=range]::-webkit-slider-thumb {
   margin-top: -7px;
 }
 input[type=range]:focus::-webkit-slider-runnable-track {
-  background: $navbar-bg;
+  background: $rangebar-color;
 }
 input[type=range]::-moz-range-track {
   width: 100%;
@@ -74,13 +76,13 @@ input[type=range]::-moz-range-track {
   cursor: pointer;
   animate: 0.2s;
   box-shadow: 0px 0px 0px #000000;
-  background: $navbar-bg;
+  background: $rangebar-color;
   border-radius: 1px;
   border: 0px solid #000000;
 }
 input[type=range]::-moz-range-thumb {
   box-shadow: 0px 0px 0px #520101;
-  border: 1px solid $navbar-bg;
+  border: 1px solid $rangebar-color;
   height: 18px;
   width: 18px;
   border-radius: 25px;
@@ -97,13 +99,13 @@ input[type=range]::-ms-track {
   color: transparent;
 }
 input[type=range]::-ms-fill-lower {
-  background: $navbar-bg;
+  background: $rangebar-color;
   border: 0px solid #000000;
   border-radius: 2px;
   box-shadow: 0px 0px 0px #000000;
 }
 input[type=range]::-ms-fill-upper {
-  background: $navbar-bg;
+  background: $rangebar-color;
   border: 0px solid #000000;
   border-radius: 2px;
   box-shadow: 0px 0px 0px #000000;
@@ -111,7 +113,7 @@ input[type=range]::-ms-fill-upper {
 input[type=range]::-ms-thumb {
   margin-top: 1px;
   box-shadow: 0px 0px 0px #520101;
-  border: 1px solid $navbar-bg;
+  border: 1px solid $rangebar-color;
   height: 18px;
   width: 18px;
   border-radius: 25px;
@@ -119,13 +121,18 @@ input[type=range]::-ms-thumb {
   cursor: pointer;
 }
 input[type=range]:focus::-ms-fill-lower {
-  background: $navbar-bg;
+  background: $rangebar-color;
 }
 input[type=range]:focus::-ms-fill-upper {
-  background: $navbar-bg;
+  background: $rangebar-color;
 }
 
-
+.foundplace{
+  text-decoration: underline;
+  text-decoration-thickness: 3px; /* Adjust the thickness as needed */
+  text-underline-offset: 3px; /* Adjust the offset as needed */
+  text-decoration-color: $light-green;
+}
 
 
 .sparkbar {

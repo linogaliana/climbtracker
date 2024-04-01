@@ -24,6 +24,22 @@ help_page2 = {
 ```
 
 ```{ojs}
+function messageRadius(foundfeatures){
+  if (foundfeatures == null){
+    return null
+  }
+  const message = (lang == "fr") ?
+  `2️⃣ Choisissez un rayon autour de <span class="foundplace">${foundfeatures.properties.label}</span> puis explorez la carte 👇️` :
+  `2️⃣ Choose a radius size around <span class="foundplace">${foundfeatures.properties.label}</span> and explore the map 👇️`
+  return message
+}
+```
+
+```{ojs}
+label_choose_radius = messageRadius(foundfeatures)
+```
+
+```{ojs}
 //| output: true
 //| label: head-page
 html
@@ -77,52 +93,6 @@ search = (aroundClimb == null) ? cols : aroundClimb.features.map(d => d.properti
   `
 ```
 
-
-```{ojs}
-function fetchAndNormalizeGeoJSON(id, baseUrl) {
-    return fetch(`${baseUrl}/${id}.geojson`)
-        .then(response => response.json())
-        .then(normalize) // Assuming `normalize` function is available in the scope
-        .catch(error => {
-          console.error(`Failed to fetch or normalize GeoJSON for ID: ${id}`, error);
-          return null;
-        }) ;
-}
-```
-
-```{ojs}
-function mergeGeoJSONs(ids, baseUrl) {
-    const promises = ids.map(id => fetchAndNormalizeGeoJSON(id, baseUrl));
-
-    return Promise.all(promises)
-        .then(normalizedGeoJSONs => {
-            return normalizedGeoJSONs.reduce((output, geojson) => {
-                if (geojson && geojson.features) {
-                    output.features.push(...geojson.features);
-                }
-                return output;
-            }, {
-                type: 'FeatureCollection',
-                features: []
-            });
-        });
-}
-```
-
-
-```{ojs}
-async function getCombinedGeoJSON(ids, baseUrl) {
-  try {
-    let combinedGeoJSON = await mergeGeoJSONs(ids, baseUrl);
-    console.log('Combined GeoJSON:', combinedGeoJSON);
-    // Handle the combined GeoJSON (e.g., display on map)
-    return combinedGeoJSON; // This will be a GeoJSON object
-  } catch (error) {
-    console.error('An error occurred while merging GeoJSONs:', error);
-    // Handle the error appropriately
-  }
-}
-```
 
 
 ```{ojs}
@@ -231,6 +201,9 @@ function getPointsWithinCircle(centerCircle, sommets){
   }
 ```
 
+```{ojs}
+console.log(foundfeatures)
+```
 
 ```{ojs}
 leafletmap = {
