@@ -51,6 +51,22 @@ function featureEvents(feature, layer) {
 }
 ```
 
+```{ojs}
+function fetchAndDisplayAscentRoute(map, feature, color = 'green') {
+  const id = feature.properties.id;
+  const polylineUrl = `https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/split/${id}.geojson`;
+
+  fetch(polylineUrl)
+    .then(response => response.json())
+    .then(data => {
+      // Modify the ascentTrackPolyline function or create a similar one to accept a color parameter
+      ascentTrackPolyline(map, data, feature, color);
+    })
+    .catch(error => console.error('Error loading the polyline GeoJSON:', error));
+}
+```
+
+
 <!---------------------
 Icons
 ----------------------->

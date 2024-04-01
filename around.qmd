@@ -101,133 +101,105 @@ mutable selectlatlng = null
 ```
 
 ```{ojs}
-//| output: true
-//| echo: true
-selectlatlng
-```
+function normalize(gj) {
+    if (!gj || !gj.type) return null;
+    var types = {
+        Point: 'geometry',
+        MultiPoint: 'geometry',
+        LineString: 'geometry',
+        MultiLineString: 'geometry',
+        Polygon: 'geometry',
+        MultiPolygon: 'geometry',
+        GeometryCollection: 'geometry',
+        Feature: 'feature',
+        FeatureCollection: 'featurecollection'
+    };
+    var type = types[gj.type];
+    if (!type) return null;
 
-```{ojs}
-//| output: true
-//| echo: true
-aroundClimb
-```
-
-```{ojs} 
-//| eval: false
-L.AwesomeMarkers = {};
-```
-
-```{ojs}      
-//| eval: false  
-L.AwesomeMarkers.version = '2.0.1';
-```
-
-
-
-```{ojs}        
-L.AwesomeMarkersInner = L.Icon.extend({
-    options: {
-        iconSize: [35, 45],
-        iconAnchor: [17, 42],
-        popupAnchor: [1, -32],
-        shadowAnchor: [10, 12],
-        shadowSize: [36, 16],
-        className: 'awesome-marker',
-        prefix: 'glyphicon',
-        spinClass: 'fa-spin',
-        extraClasses: '',
-        icon: 'home',
-        markerColor: 'blue',
-        iconColor: 'white'
-    },
-
-    initialize: function (options) {
-        options = L.Util.setOptions(this, options);
-    },
-
-    createIcon: function () {
-        var div = document.createElement('div'),
-            options = this.options;
-
-        if (options.icon) {
-            div.innerHTML = this._createInner();
-        }
-
-        if (options.bgPos) {
-            div.style.backgroundPosition =
-                (-options.bgPos.x) + 'px ' + (-options.bgPos.y) + 'px';
-        }
-
-        this._setIconStyles(div, 'icon-' + options.markerColor);
-        return div;
-    },
-
-    _createInner: function () {
-        var iconClass, iconSpinClass = "", iconColorClass = "", iconColorStyle = "", options = this.options;
-
-        if (options.icon.slice(0, options.prefix.length + 1) === options.prefix + "-") {
-            iconClass = options.icon;
-        } else {
-            iconClass = options.prefix + "-" + options.icon;
-        }
-
-        if (options.spin && typeof options.spinClass === "string") {
-            iconSpinClass = options.spinClass;
-        }
-
-        if (options.iconColor) {
-            if (options.iconColor === 'white' || options.iconColor === 'black') {
-                iconColorClass = "icon-" + options.iconColor;
-            } else {
-                iconColorStyle = "style='color: " + options.iconColor + "' ";
-            }
-        }
-
-        return "<i " + iconColorStyle + "class='" + options.extraClasses + " " + options.prefix + " " + iconClass + " " + iconSpinClass + " " + iconColorClass + "'></i>";
-    },
-
-    _setIconStyles: function (img, name) {
-        var options = this.options,
-            size = L.point(options[name === 'shadow' ? 'shadowSize' : 'iconSize']),
-            anchor;
-
-        if (name === 'shadow') {
-            anchor = L.point(options.shadowAnchor || options.iconAnchor);
-        } else {
-            anchor = L.point(options.iconAnchor);
-        }
-
-        if (!anchor && size) {
-            anchor = size.divideBy(2, true);
-        }
-
-        img.className = 'awesome-marker-' + name + ' ' + options.className;
-
-        if (anchor) {
-            img.style.marginLeft = (-anchor.x) + 'px';
-            img.style.marginTop = (-anchor.y) + 'px';
-        }
-
-        if (size) {
-            img.style.width = size.x + 'px';
-            img.style.height = size.y + 'px';
-        }
-    },
-
-    createShadow: function () {
-        var div = document.createElement('div');
-
-        this._setIconStyles(div, 'shadow');
-        return div;
+    if (type === 'geometry') {
+        return {
+            type: 'FeatureCollection',
+            features: [{
+                type: 'Feature',
+                properties: {},
+                geometry: gj
+            }]
+        };
+    } else if (type === 'feature') {
+        return {
+            type: 'FeatureCollection',
+            features: [gj]
+        };
+    } else if (type === 'featurecollection') {
+        return gj;
     }
-});
+}
+```
+
+
+```{ojs}
+function fetchAndNormalizeGeoJSON(id, baseUrl) {
+    return fetch(`${baseUrl}/${id}.geojson`)
+        .then(response => response.json())
+        .then(normalize) // Assuming `normalize` function is available in the scope
+        .catch(error => {
+          console.error(`Failed to fetch or normalize GeoJSON for ID: ${id}`, error);
+          return null;
+        }) ;
+}
 ```
 
 ```{ojs}
-L.AwesomeMarkers = function (options) {
-    return new L.AwesomeMarkersInner(options);
-};
+function mergeGeoJSONs(ids, baseUrl) {
+    const promises = ids.map(id => fetchAndNormalizeGeoJSON(id, baseUrl));
+
+    return Promise.all(promises)
+        .then(normalizedGeoJSONs => {
+            return normalizedGeoJSONs.reduce((output, geojson) => {
+                if (geojson && geojson.features) {
+                    output.features.push(...geojson.features);
+                }
+                return output;
+            }, {
+                type: 'FeatureCollection',
+                features: []
+            });
+        });
+}
 ```
+
+```{ojs}
+async function getCombinedGeoJSON(ids, baseUrl) {
+  try {
+    let combinedGeoJSON = await mergeGeoJSONs(ids, baseUrl);
+    console.log('Combined GeoJSON:', combinedGeoJSON);
+    // Handle the combined GeoJSON (e.g., display on map)
+    return combinedGeoJSON; // This will be a GeoJSON object
+  } catch (error) {
+    console.error('An error occurred while merging GeoJSONs:', error);
+    // Handle the error appropriately
+  }
+}
+```
+
+```{ojs}
+function addGeoJSONToMap(geoJSON, map) {
+  L.geoJSON(geoJSON, {
+      style: function(feature) {
+          // Define the style of the polyline here if needed
+          return { color: feature.properties.stroke || 'blue', weight: 2 };
+      },
+      onEachFeature: function(feature, layer) {
+          // If you want to do something with each feature like bind a popup
+          if (feature.properties && feature.properties.name) {
+              layer.bindPopup(feature.properties.name);
+          }
+      }
+  }).addTo(map);
+}
+```
+
 
 ```{=html}
 <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.css" rel="stylesheet">
@@ -236,6 +208,20 @@ L.AwesomeMarkers = function (options) {
 
 ```{ojs}
 mutable foundfeatures = null ;
+```
+
+```{ojs}
+function getPointsWithinCircle(centerCircle, sommets){
+
+    var options = {steps: 64, units: 'kilometers'};
+    var circle = turf.circle(
+      centerCircle , radiusInner, options
+    );
+    // Perform spatial query with Turf.js using the drawn circle
+    var pointsWithin = turf.pointsWithinPolygon(sommets, circle);
+
+    return pointsWithin    
+  }
 ```
 
 
@@ -247,6 +233,7 @@ leafletmap = {
   yield parent;
   var map = L.map(parent).setView([45.853459, 2.349312], 5);
 
+  const baseUrl = 'https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/split';
   var radiustemp = radius ;
 
   // Add the layer control to the map
@@ -261,40 +248,30 @@ leafletmap = {
   geocoder.markGeocode = function(feature) {
     var latlng = [feature.geometry.coordinates[1], feature.geometry.coordinates[0]]
     map.setView(latlng, 8)
-
     mutable selectlatlng = latlng;
     mutable foundfeatures = feature ;
-
-    console.log(feature)
-
   }
 
   if (selectlatlng != null){
+
     console.log(selectlatlng)
 
-  var foundpoint = createIcon(
-    null, selectlatlng, "black"
-  ).addTo(map);
-  
-  foundpoint.bindPopup(foundfeatures.properties.label).openPopup() ;
-
+    // Center of the circle
+    var foundpoint = createIcon(
+      null, selectlatlng, "black"
+    ).addTo(map);
+    foundpoint.bindPopup(foundfeatures.properties.label).openPopup() ;
+    // Circle
     var circle = L.circle(selectlatlng, { radius: radiusInner*1000 }).addTo(map);
     map.fitBounds(circle.getBounds())
 
-    console.log(radiusInner)
-
-    var options = {steps: 64, units: 'kilometers'};
-    var circle = turf.circle(
-      selectlatlng.reverse(), radiusInner, options
-    );
-
-    // Perform spatial query with Turf.js using the drawn circle
-    var pointsWithin = turf.pointsWithinPolygon(sommets, circle);
-
-    console.log(pointsWithin)
-
+    // Detect points within circle
+    const pointsWithin = getPointsWithinCircle(selectlatlng.reverse(), sommets) ;
     mutable aroundClimb = pointsWithin
 
+    // Add rot
+
+    // Add summit markers
     var geojsonLayer = L.geoJson(
         pointsWithin, {
           onEachFeature: popEventSummit,
@@ -303,23 +280,37 @@ leafletmap = {
         }
     }).addTo(map);
 
-  }
+
+    // Add ascent routes tracks
+    const ids = pointsWithin.features.map(d=> d.properties.id) ;
+    getCombinedGeoJSON(ids, baseUrl)
+    .then(combinedGeoJSON => {
+        // Add each feature from the combined GeoJSON as a separate polyline
+        combinedGeoJSON.features.forEach((feature) => {
+            addGeoJSONToMap(feature, map);
+        });
+    })
+    .catch(error => {
+        console.error('An error occurred:', error);
+    });
+
+    }
 
   // Define a function that will be called for each feature in your GeoJSON layer
   function popEventSummit(feature, layer) {
 
       // Add mouseover event listener
-      //layer.on('mouseover', function() {
-      //  const tooltipMessage = tooltipSummit(feature) ;
-      //  layer.bindTooltip(
-      //    tooltipMessage, {permanent: false, direction: "auto"}
-      //    ).openTooltip();
-      //});
+      layer.on('mouseover', function() {
+        const tooltipMessage = tooltipSummit(feature) ;
+        layer.bindTooltip(
+          tooltipMessage, {permanent: false, direction: "auto"}
+          ).openTooltip();
+      });
 
       // Create popup for ascent summit
-      //layer.bindPopup(
-        //popUpSummit(feature, lang)
-      //);
+      layer.bindPopup(
+        popUpSummit(feature, lang)
+      );
 
      layer.on({
        click: whenClicked, //callback functions
@@ -331,11 +322,11 @@ leafletmap = {
         const availableAscents = document.getElementById('available-ascent');        
         
         // Update the content of 'statsElement' with the desired statistics from 'feature.properties'
-        //statsElement.innerHTML = container_ascent(feature, lang, width) ;
-        //availableAscents.innerHTML = "" ;
+        statsElement.innerHTML = container_ascent(feature, lang, width) ;
+        availableAscents.innerHTML = "" ;
 
         // Fetch route for selected ascent
-        // fetchAndDisplayAscentRoute(map, feature, 'red');
+        fetchAndDisplayAscentRoute(map, feature, 'red');
       });
 
   }
@@ -344,7 +335,7 @@ leafletmap = {
 ```
 
 
+
 ```{ojs}
-//| output: true
 mutable aroundClimb = null
 ```
