@@ -184,19 +184,70 @@ async function getCombinedGeoJSON(ids, baseUrl) {
 ```
 
 ```{ojs}
-function addGeoJSONToMap(geoJSON, map) {
-  L.geoJSON(geoJSON, {
-      style: function(feature) {
-          // Define the style of the polyline here if needed
-          return { color: feature.properties.stroke || 'blue', weight: 2 };
-      },
-      onEachFeature: function(feature, layer) {
-          // If you want to do something with each feature like bind a popup
-          if (feature.properties && feature.properties.name) {
-              layer.bindPopup(feature.properties.name);
-          }
-      }
-  }).addTo(map);
+mutable hoverid = null;
+```
+
+
+```{ojs}
+function addGeoJSONToMap(geoJSON, map, pointsWithin) {
+    L.geoJSON(geoJSON, {
+        style: function(feature) {
+            // Define the style of the polyline here if needed
+            return { color: feature.properties.stroke || 'blue', weight: 4 };
+        },
+        onEachFeature: function(feature, layer) {
+            const id = feature.properties.url.replace(".gpx", '') ;
+            //mutable hoverid = id ;
+            const summit_info = geo.filter(pointsWithin, (d) => d.id == id)
+
+            layer.bindTooltip(
+              tooltipSummit(
+                summit_info.features[0]
+              ),
+                {permanent: false, direction: 'auto'}
+            );
+
+            layer.bindPopup(
+              popUpSummit(summit_info.features[0], lang)
+            );
+
+            layer.on({
+              click: (event) => {
+                // const id = event.target.feature.properties.url.replace(".gpx", "") ;
+                mutable selectedClimb = summit_info.features[0]
+              }, //callback functions
+            });
+
+            // Existing event listener for popup opens
+            layer.on('popupopen', function() {
+              const statsElement = document.getElementById('statsElement');
+              const availableAscents = document.getElementById('available-ascent');        
+              
+              // Update the content of 'statsElement' with the desired statistics from 'feature.properties'
+              statsElement.innerHTML = container_ascent(summit_info.features[0], lang, width) ;
+              availableAscents.innerHTML = "" ;
+
+              // Fetch route for selected ascent
+              fetchAndDisplayAscentRoute(map, feature, 'red');
+            });
+
+
+            // Optional: Add a mouseover effect to highlight the polyline
+            layer.on('mouseover', function() {
+                this.setStyle({
+                    color: 'yellow', // Change polyline color on mouseover
+                    weight: 6 // Increase polyline weight on mouseover
+                });
+            });
+            layer.on('mouseout', function() {
+                // Revert to original style
+                this.setStyle({
+                    color: feature.properties.stroke || 'blue', // Reset color
+                    weight: 4 // Reset weight
+                });
+            });
+        }
+    }).addTo(map);
 }
 ```
 
@@ -287,7 +338,7 @@ leafletmap = {
     .then(combinedGeoJSON => {
         // Add each feature from the combined GeoJSON as a separate polyline
         combinedGeoJSON.features.forEach((feature) => {
-            addGeoJSONToMap(feature, map);
+            addGeoJSONToMap(feature, map, pointsWithin);
         });
     })
     .catch(error => {
@@ -335,7 +386,19 @@ leafletmap = {
 ```
 
 
-
 ```{ojs}
 mutable aroundClimb = null
+```
+
+
+```{ojs}
+{
+  document.querySelector('#stats-denivellation').appendChild(
+    rank_ascent(sommets, "denivellation", selectedClimb, lang)
+  )
+  document.querySelector('#stats-denivellation').appendChild(
+    rank_ascent(sommets, "longueur", selectedClimb, lang)
+  )
+
+}
 ```

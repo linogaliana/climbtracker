@@ -18,46 +18,6 @@ function sparkbar(max) {
 }
 ```
 
-<!-----------------
-Plotting functions
-------------------->
-
-```{ojs}
-function rank_ascent(sommetsGeoJson, variableToPlot, selectedClimb, lang = "fr"){
- const namelabel = (lang == "fr") ? "Ascension" : "Ascent" 
- const gainlabel = (lang == "fr") ? "Dénivelé positif" : "Elevation gain" 
- const massiflabel = (lang == "fr") ? "Massif" : "Mountain side" 
- const percentlabel = (lang == "fr") ? "Pente moyenne" : "Average slope" 
- let p = Plot.plot({
-  color: {
-      type: "sequential",
-      scheme: "Turbo"
-    },
-    marks: [
-      Plot.ruleX(
-        sommetsGeoJson.features.map(d=>d.properties),
-        {
-          x: variableToPlot, stroke: variableToPlot,
-          channels: {
-            nom: {label: namelabel, value: "nom"},
-            deniv: {label: gainlabel, value: (d) => `${d.denivellation}m`},
-            massif: {label: massiflabel, value: "massif"},
-            percent: {value: (d) => `${d.percent_moyen}%`, label: percentlabel},
-            },
-          tip: {
-            format: {
-              stroke : false
-            },
-            anchor: "top"
-          },
-          strokeOpacity: 0.2}
-      ),
-      Plot.ruleX([selectedClimb], {x : variableToPlot, stroke: "red", strokeWidth: 2})
-    ]
-  })
-  return p
-}
-```
 
 
 

@@ -46,7 +46,6 @@ whenClicked =  (event) => {
 function featureEvents(feature, layer) {
    layer.on({
      click: whenClicked, //callback functions
-     
    });
 }
 ```
