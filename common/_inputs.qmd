@@ -1,0 +1,35 @@
+<!------------------
+Lang
+-------------------->
+
+```{ojs}
+viewof lang = startStop()
+```
+
+
+```{ojs}
+english = document.getElementById("button_english")
+french = document.getElementById("button_french")
+
+function change(lang_on, lang_off) {
+  if (!lang_on.classList.contains("current_lang")) {
+    // if the span that the user clicks on does not have the "current_lang" class
+    lang_on.classList.add("current_lang");
+    // add the "current_lang" class to it
+    lang_off.classList.remove("current_lang");
+    // remove the "current_lang" class from the other span
+  }
+}
+
+english.addEventListener("click", function() {
+    change(english, french);
+  }, false
+);
+// add an event listener to listen to when the user clicks on one of the language span tags
+// this triggers our custom "change" function, which we will define later
+
+french.addEventListener("click", function() {
+    change(french, english);
+  }, false
+);
+```

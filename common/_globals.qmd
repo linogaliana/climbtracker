@@ -11,6 +11,7 @@ mapHeight = (width > 400) ? 0.85*screenHeight : 0.5*screenHeight
 ```
 
 
+
 <!-----------------------------
 Functions for inputs
 ------------------------------->
@@ -172,6 +173,89 @@ function toGeoJSONFeatureCollection(data) {
     "type": "FeatureCollection",
     "features": features
   };
+}
+```
+
+```{ojs}
+function normalize(gj) {
+    if (!gj || !gj.type) return null;
+    var types = {
+        Point: 'geometry',
+        MultiPoint: 'geometry',
+        LineString: 'geometry',
+        MultiLineString: 'geometry',
+        Polygon: 'geometry',
+        MultiPolygon: 'geometry',
+        GeometryCollection: 'geometry',
+        Feature: 'feature',
+        FeatureCollection: 'featurecollection'
+    };
+    var type = types[gj.type];
+    if (!type) return null;
+
+    if (type === 'geometry') {
+        return {
+            type: 'FeatureCollection',
+            features: [{
+                type: 'Feature',
+                properties: {},
+                geometry: gj
+            }]
+        };
+    } else if (type === 'feature') {
+        return {
+            type: 'FeatureCollection',
+            features: [gj]
+        };
+    } else if (type === 'featurecollection') {
+        return gj;
+    }
+}
+```
+
+```{ojs}
+function fetchAndNormalizeGeoJSON(id, baseUrl) {
+    return fetch(`${baseUrl}/${id}.geojson`)
+        .then(response => response.json())
+        .then(normalize) // Assuming `normalize` function is available in the scope
+        .catch(error => {
+          console.error(`Failed to fetch or normalize GeoJSON for ID: ${id}`, error);
+          return null;
+        }) ;
+}
+```
+
+```{ojs}
+function mergeGeoJSONs(ids, baseUrl) {
+    const promises = ids.map(id => fetchAndNormalizeGeoJSON(id, baseUrl));
+
+    return Promise.all(promises)
+        .then(normalizedGeoJSONs => {
+            return normalizedGeoJSONs.reduce((output, geojson) => {
+                if (geojson && geojson.features) {
+                    output.features.push(...geojson.features);
+                }
+                return output;
+            }, {
+                type: 'FeatureCollection',
+                features: []
+            });
+        });
+}
+```
+
+
+```{ojs}
+async function getCombinedGeoJSON(ids, baseUrl) {
+  try {
+    let combinedGeoJSON = await mergeGeoJSONs(ids, baseUrl);
+    console.log('Combined GeoJSON:', combinedGeoJSON);
+    // Handle the combined GeoJSON (e.g., display on map)
+    return combinedGeoJSON; // This will be a GeoJSON object
+  } catch (error) {
+    console.error('An error occurred while merging GeoJSONs:', error);
+    // Handle the error appropriately
+  }
 }
 ```
 

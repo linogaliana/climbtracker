@@ -1,6 +1,6 @@
 ---
-title: "Quelles sont les ascensions autour de moi?"
 echo: false
+output: false
 ---
 
 {{< include /common/_data.qmd >}}
@@ -10,55 +10,37 @@ echo: false
 {{< include /common/_leaflet_functions.qmd >}}
 {{< include /common/_leaflet_ban.qmd >}}
 
+{{< include /page2/_inputs.qmd >}}
 
 
 ```{ojs}
-viewof lang = startStop()
-```
-
-```{ojs}
-mutable selectedClimb = null ;
+//| output: true
+help_page2 = {
+  if (selectlatlng == null){
+    return label_find_adress
+  }
+  return html`<div>${label_choose_radius}</div><div class="radius-selector">${radius}</div>`
+} 
 ```
 
 ```{ojs}
 //| output: true
-radius = Inputs.bind(
-          Range([1, 100], {unit: "km", value: 20, step: 1}),
-          viewof radiusInner
-)
+//| label: head-page
+html
+`
+<div class="lang-selector">${viewof lang}</div>
+<div class="container">
+  <div class="message-input-select">${help_page2}</div>
+<div/>
+`
 ```
+
 
 ```{ojs}
-//| output: false
-viewof radiusInner = Inputs.range([0, 100], {value: 20}) 
+//| output: true
+search = (aroundClimb == null) ? cols : aroundClimb.features.map(d => d.properties)
 ```
 
-
-```{ojs}
-table_selected = Inputs.table(
-  cols,
-  {
-    columns: [
-      "nom",
-      "depart",
-      "longueur",
-      "denivellation",
-      "altitude",
-      "percent_moyen",
-      "percent_maximal"
-    ],
-    header: {
-        nom: header_table_name,
-        depart: header_table_departure,
-        longueur: filter_checkbox_length,
-        denivellation: filter_checkbox_deniv,
-        altitude: header_table_alt,
-        percent_moyen: header_table_avgpercent,
-        percent_maximal: header_table_maxpercent
-      },
-    sort: "denivellation", reverse: true
-})
-```
 
 
 ```{ojs}
@@ -97,48 +79,6 @@ table_selected = Inputs.table(
 
 
 ```{ojs}
-mutable selectlatlng = null
-```
-
-```{ojs}
-function normalize(gj) {
-    if (!gj || !gj.type) return null;
-    var types = {
-        Point: 'geometry',
-        MultiPoint: 'geometry',
-        LineString: 'geometry',
-        MultiLineString: 'geometry',
-        Polygon: 'geometry',
-        MultiPolygon: 'geometry',
-        GeometryCollection: 'geometry',
-        Feature: 'feature',
-        FeatureCollection: 'featurecollection'
-    };
-    var type = types[gj.type];
-    if (!type) return null;
-
-    if (type === 'geometry') {
-        return {
-            type: 'FeatureCollection',
-            features: [{
-                type: 'Feature',
-                properties: {},
-                geometry: gj
-            }]
-        };
-    } else if (type === 'feature') {
-        return {
-            type: 'FeatureCollection',
-            features: [gj]
-        };
-    } else if (type === 'featurecollection') {
-        return gj;
-    }
-}
-```
-
-
-```{ojs}
 function fetchAndNormalizeGeoJSON(id, baseUrl) {
     return fetch(`${baseUrl}/${id}.geojson`)
         .then(response => response.json())
@@ -169,6 +109,7 @@ function mergeGeoJSONs(ids, baseUrl) {
 }
 ```
 
+
 ```{ojs}
 async function getCombinedGeoJSON(ids, baseUrl) {
   try {
@@ -183,10 +124,6 @@ async function getCombinedGeoJSON(ids, baseUrl) {
 }
 ```
 
-```{ojs}
-mutable hoverid = null;
-```
-
 
 ```{ojs}
 function addGeoJSONToMap(geoJSON, map, pointsWithin) {
@@ -197,8 +134,8 @@ function addGeoJSONToMap(geoJSON, map, pointsWithin) {
         },
         onEachFeature: function(feature, layer) {
             const id = feature.properties.url.replace(".gpx", '') ;
-            //mutable hoverid = id ;
             const summit_info = geo.filter(pointsWithin, (d) => d.id == id)
+            let selectedLayer = null;
 
             layer.bindTooltip(
               tooltipSummit(
@@ -213,9 +150,20 @@ function addGeoJSONToMap(geoJSON, map, pointsWithin) {
 
             layer.on({
               click: (event) => {
-                // const id = event.target.feature.properties.url.replace(".gpx", "") ;
-                mutable selectedClimb = summit_info.features[0]
-              }, //callback functions
+                if (selectedLayer && selectedLayer != layer) {
+                      selectedLayer.setStyle({
+                        color: selectedLayer.feature.properties.stroke || 'blue', // Reset to original color
+                        weight: 4 // Reset to original weight
+                      });
+                    }
+                mutable selectedClimb = summit_info.features[0] ;
+                // Set the clicked layer as the new selected layer
+                selectedLayer = layer; 
+                layer.setStyle({
+                        color: 'red', // Set color to red for the selected polyline
+                        weight: 4
+                    });               
+              },
             });
 
             // Existing event listener for popup opens
@@ -228,23 +176,31 @@ function addGeoJSONToMap(geoJSON, map, pointsWithin) {
               availableAscents.innerHTML = "" ;
 
               // Fetch route for selected ascent
-              fetchAndDisplayAscentRoute(map, feature, 'red');
+              fetchAndDisplayAscentRoute(map, summit_info.features[0], 'red');
             });
 
 
-            // Optional: Add a mouseover effect to highlight the polyline
+            layer.on('click', function() {
+                this.setStyle({
+                    color: 'red', // Change polyline color on mouseover
+                    weight: 4 // Increase polyline weight on mouseover
+                });
+            });
             layer.on('mouseover', function() {
+              if (layer !== selectedLayer) {
                 this.setStyle({
                     color: 'yellow', // Change polyline color on mouseover
                     weight: 6 // Increase polyline weight on mouseover
                 });
+              }
             });
             layer.on('mouseout', function() {
-                // Revert to original style
+              if (layer !== selectedLayer) {
                 this.setStyle({
                     color: feature.properties.stroke || 'blue', // Reset color
-                    weight: 4 // Reset weight
+                    weight: 2 // Reset weight
                 });
+              }
             });
         }
     }).addTo(map);
@@ -385,6 +341,13 @@ leafletmap = {
 }
 ```
 
+```{ojs}
+mutable selectlatlng = null
+```
+
+```{ojs}
+mutable selectedClimb = null ;
+```
 
 ```{ojs}
 mutable aroundClimb = null

@@ -1,0 +1,41 @@
+```{ojs}
+viewof radiusInner = Inputs.range([0, 100], {value: 20}) 
+```
+
+```{ojs}
+radius = Inputs.bind(
+          Range([1, 100], {unit: "km", value: 20, step: 1}),
+          viewof radiusInner
+)
+```
+
+
+<!-----------
+Other inputs
+------------->
+
+```{ojs}
+table_selected = Inputs.table(
+  search,
+  {
+    columns: [
+      "nom",
+      "depart",
+      "longueur",
+      "denivellation",
+      "altitude",
+      "percent_moyen",
+      "percent_maximal"
+    ],
+    header: {
+        nom: header_table_name,
+        depart: header_table_departure,
+        longueur: filter_checkbox_length,
+        denivellation: filter_checkbox_deniv,
+        altitude: header_table_alt,
+        percent_moyen: header_table_avgpercent,
+        percent_maximal: header_table_maxpercent
+      },
+    sort: "denivellation", reverse: true
+})
+```

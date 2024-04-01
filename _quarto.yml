@@ -2,10 +2,11 @@ project:
   type: website
 
 website:
-  title: "Mysite"
+  title: "Climb Tracker"
   navbar:
     pinned: true
     left:
+      - text: 🚵
       - href: index.qmd
         text: Explorateur d'ascension
       - href: around.qmd
