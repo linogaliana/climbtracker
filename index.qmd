@@ -14,7 +14,6 @@ output: false
 {{< include /page1/_inputs.qmd >}}
 
 
-
 <!------------------------
 First block: mode & lang
 ------------------------->

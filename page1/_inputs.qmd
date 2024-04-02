@@ -11,7 +11,7 @@ widget_to_print = {
     case filter_checkbox_deniv:
       console.log("Choosing filter by height gain")
       return Inputs.bind(
-        Range([1, max_denivelation], {unit: "m"}),
+        Range([1, max_denivelation], {unit: "m", value: 1200}),
         viewof climb_height
       )
     case filter_checkbox_category:

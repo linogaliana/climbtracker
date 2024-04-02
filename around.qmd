@@ -57,7 +57,21 @@ html
 search = (aroundClimb == null) ? cols : aroundClimb.features.map(d => d.properties)
 ```
 
+```{ojs}
+message_climb_radius = function(aroundClimb){
 
+  if (aroundClimb == null){
+    return ``
+  }
+
+  const message = (lang == "fr") ?
+    html`${search.features.length} ascensions dans un rayon de ${radius} km` :
+    html`${search.features.length} climb in a ${radius} km radius` ;
+
+  return message 
+
+} 
+```
 
 ```{ojs}
 //| output: true
