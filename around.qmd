@@ -73,6 +73,7 @@ message_climb_radius = function(aroundClimb){
 } 
 ```
 
+
 ```{ojs}
 //| output: true
 (width > 400) ?
