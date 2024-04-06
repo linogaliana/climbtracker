@@ -1,13 +1,6 @@
 ---
 echo: false
 output: false
-format:
-  html:
-    grid:
-      sidebar-width: 0px
-      body-width: 2000px
-      margin-width: 0px
-      gutter-width: 0.5rem
 ---
 
 {{< include /common/_data.qmd >}}

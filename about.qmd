@@ -24,33 +24,62 @@ html
 
 ```{ojs}
 //| output: true
-(width > 400) ?
-  html`
-  <div class="main-container" style="display: flex; flex-direction: row; justify-content: space-between;">
-    <div id="text-about" style="width: 60%;">${text_about}</div>
-    <div class="column spacer" style="width: 10%;"></div> <!-- Spacer column -->
-    <div style="width: 30%;">
-      <div id="profile-picture">
-        <img src="https://minio.lab.sspcloud.fr/lgaliana/generative-art/pythonds/catbike.png" 
-             alt="Cat on a bike" 
-             style="max-width: 100%; height: auto; border-radius: 50%;">
-      </div>
-    </div>
-  </div>
-  ` :
-  html`
-    <div style="justify-content: center; align-items: center; width: 100%;">
-      <div id="profile-picture">
-        <img src="https://minio.lab.sspcloud.fr/lgaliana/generative-art/pythonds/catbike.png" 
-             alt="Cat on a bike" 
-             style="max-width: 100%; height: auto; border-radius: 50%;">
-      </div>
-    </div>
-    <br>
-    <div id="text-about" style="width: 100%;">${text_about}</div>
-    <br>
-  `
+container_about(width)
+```
 
+```{ojs}
+container_about = function(width){
+    if (width<600){
+        const small_container = html`
+            <div style="justify-content: center; align-items: center; width: 100%;">
+            <div id="profile-picture">
+                <img src="https://minio.lab.sspcloud.fr/lgaliana/generative-art/pythonds/catbike.png" 
+                    alt="Cat on a bike" 
+                    style="max-width: 100%; height: auto; border-radius: 50%;">
+            </div>
+            </div>
+            <br>
+            <div id="text-about" style="width: 100%;">${text_about}</div>
+            <br>
+        ` ;
+        return small_container
+    }
+
+    if (width < 1000){
+        const middle_container = html`
+        <div class="main-container" style="display: flex; flex-direction: row; justify-content: space-between;">
+            <div id="text-about" style="width: 40%;">${text_about}</div>
+            <div class="column spacer" style="width: 10%;"></div> <!-- Spacer column -->
+            <div style="width: 50%;">
+            <div id="profile-picture">
+                <img src="https://minio.lab.sspcloud.fr/lgaliana/generative-art/pythonds/catbike.png" 
+                    alt="Cat on a bike" 
+                    style="max-width: 100%; height: auto; border-radius: 50%;">
+            </div>
+            </div>
+        </div>
+        ` ;
+        return middle_container
+    }
+
+    const container_about = html`
+    <div class="main-container" style="display: flex; flex-direction: row; justify-content: space-between;">
+        <div class="column spacer" style="width: 20%;"></div> <!-- Spacer column -->
+        <div id="text-about" style="width: 40%;">${text_about}</div>
+        <div class="column spacer" style="width: 2%;"></div> <!-- Spacer column -->
+        <div style="width: 18%;">
+        <div id="profile-picture">
+            <img src="https://minio.lab.sspcloud.fr/lgaliana/generative-art/pythonds/catbike.png" 
+                alt="Cat on a bike" 
+                style="max-width: 100%; height: auto; border-radius: 50%;">
+        </div>
+        </div>
+        <div class="column spacer" style="width: 20%;"></div> <!-- Spacer column -->
+    </div>
+    ` ;
+    return container_about
+ 
+}
 ```
 
 ```{ojs}
@@ -69,7 +98,7 @@ ce site à mes heures perdues.
 
 Celui-ci simplifie
 l'exploration des cols cyclistes disponibles en France
-et référencés sur [cols-cyclisme.com/](https://www.cols-cyclisme.com/). 
+référencés sur [cols-cyclisme.com/](https://www.cols-cyclisme.com/). 
 Des statistiques sur près de 2500 ascensions sont répertoriées ici.
 
 L'objectif du site est d'explorer librement les ascensions cyclistes

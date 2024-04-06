@@ -3,6 +3,7 @@ project:
 
 website:
   title: "climb tracker 🚵"
+  search: false
   navbar:
     pinned: true
     left:
@@ -22,5 +23,9 @@ format:
       dark: [darkly, style.scss]
     css: [styles.css, leafletban.css]
     toc: true
-
+    grid:
+      sidebar-width: 0px
+      body-width: 2000px
+      margin-width: 0px
+      gutter-width: 0.5rem
 
