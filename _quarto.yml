@@ -2,7 +2,7 @@ project:
   type: website
 
 website:
-  title: "Climb Tracker 🚵"
+  title: "climb tracker 🚵"
   navbar:
     pinned: true
     left:
@@ -12,15 +12,11 @@ website:
         text: Explorateur de lieux
       - href: statistics.qmd
         text: Espace des statistiques
-      - about.qmd
+      - href: about.qmd
+        text: A propos
 
 format:
   html:
-    grid:
-      sidebar-width: 0px
-      body-width: 2000px
-      margin-width: 0px
-      gutter-width: 0.5rem
     theme:
       light: [flatly, style.scss]
       dark: [darkly, style.scss]

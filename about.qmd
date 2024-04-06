@@ -1,5 +1,133 @@
 ---
-title: "About"
+echo: false
+output: false
 ---
 
-About this site
+
+{{< include /common/_data.qmd >}}
+{{< include /common/_globals.qmd >}}
+{{< include /common/_inputs.qmd >}}
+{{< include /common/_labels.qmd >}}
+
+
+```{ojs}
+//| output: true
+//| label: head-page
+html
+`
+<div class="lang-selector">${viewof lang}</div>
+<br>
+<br>
+<br>
+`
+```
+
+```{ojs}
+//| output: true
+(width > 400) ?
+  html`
+  <div class="main-container" style="display: flex; flex-direction: row; justify-content: space-between;">
+    <div id="text-about" style="width: 60%;">${text_about}</div>
+    <div class="column spacer" style="width: 10%;"></div> <!-- Spacer column -->
+    <div style="width: 30%;">
+      <div id="profile-picture">
+        <img src="https://minio.lab.sspcloud.fr/lgaliana/generative-art/pythonds/catbike.png" 
+             alt="Cat on a bike" 
+             style="max-width: 100%; height: auto; border-radius: 50%;">
+      </div>
+    </div>
+  </div>
+  ` :
+  html`
+    <div style="justify-content: center; align-items: center; width: 100%;">
+      <div id="profile-picture">
+        <img src="https://minio.lab.sspcloud.fr/lgaliana/generative-art/pythonds/catbike.png" 
+             alt="Cat on a bike" 
+             style="max-width: 100%; height: auto; border-radius: 50%;">
+      </div>
+    </div>
+    <br>
+    <div id="text-about" style="width: 100%;">${text_about}</div>
+    <br>
+  `
+
+```
+
+```{ojs}
+text_about = (lang == "fr") ? text_french : text_english 
+```
+
+```{ojs}
+text_french = md`
+
+Voulant planifier le
+point de chute idéal pour faire quelques
+ascensions cet été et curieux de découvrir les
+caractéristiques de nombreux
+cols disponibles en France, j'ai commencé à construire
+ce site à mes heures perdues. 
+
+Celui-ci simplifie
+l'exploration des cols cyclistes disponibles en France
+et référencés sur [cols-cyclisme.com/](https://www.cols-cyclisme.com/). 
+Des statistiques sur près de 2500 ascensions sont répertoriées ici.
+
+L'objectif du site est d'explorer librement les ascensions cyclistes
+françaises. Celles-ci peuvent être choisies en fonction
+de critères de difficultés (longueur, dénivelé, etc.) ou 
+bien peuvent être sélectionnées dans le rayon d'un
+point de départ. 
+
+Le site s'enrichira prochainement de nouvelles pages, notamment
+de nombreuses statistiques construites à partir de
+données sur les ascensions cyclistes. 
+`
+```
+
+```{ojs}
+text_english = md`
+Wanting to plan the perfect spot for a few climbs this summer,
+and curious to discover the characteristics of the many passes available in France,
+I started building this site in my spare time. 
+
+It simplifies the exploration of cycling passes available in France
+and referenced on [cols-cyclisme.com/](https://www.cols-cyclisme.com/).
+Statistics on almost 2,500 climbs are listed here.
+
+The aim of the site is to freely explore French cycling climbs.
+These can be selected according to difficulty criteria (length, altitude difference, etc.)
+or can be selected within the radius of a starting point. 
+
+The website will soon be enhanced with new pages, including
+numerous statistics based on data
+data on cycling climbs. 
+`
+```
+
+```{ojs}
+profile = md`![](https://minio.lab.sspcloud.fr/lgaliana/generative-art/pythonds/catbike.png)`
+```
+
+
+
+
+::: {.column-page-inset .text-center}
+```{=html}
+<a class="btn btn-outline-dark", href="https://linogaliana.fr" target="_blank" rel="noopener noreferrer">
+    <i class="bi bi-person-fill" role='img' aria-label='website'></i>
+</a>
+
+<a class="btn btn-outline-dark", href="https://github.com/linogaliana" target="_blank" rel="noopener noreferrer">
+    <i class="bi bi-github" role='img' aria-label='Github'></i>
+</a>
+
+<a class="btn btn-outline-dark", href="https://twitter.com/linogaliana" target="_blank" rel="noopener noreferrer">
+    <i class="bi bi-twitter" role='img' aria-label='Twitter'></i>
+</a>
+
+
+<a class="btn btn-outline-dark", href="https://www.linkedin.com/in/linogaliana/" target="_blank" rel="noopener noreferrer">
+    <i class="bi bi-linkedin" role='img' aria-label='LinkedIn'></i>
+</a>
+```
+:::

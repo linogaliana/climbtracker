@@ -7,6 +7,8 @@ raw = {
   const geojsonUrl4 = "https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/massif-central.geojson";
   const geojsonUrl5 = "https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/vosges.geojson";
   const geojsonUrl6 = "https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/autres-massifs.geojson";
+  const geojsonUrl7 = "https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/autres.geojson";
+  const geojsonUrl8 = "https://minio.lab.sspcloud.fr/lgaliana/cyclisme/data/geojson/missed.geojson";
 
   // Fetch
   const fetchGeoJSON1 = fetch(geojsonUrl1).then(response => response.json());
@@ -15,12 +17,15 @@ raw = {
   const fetchGeoJSON4 = fetch(geojsonUrl4).then(response => response.json());
   const fetchGeoJSON5 = fetch(geojsonUrl5).then(response => response.json());
   const fetchGeoJSON6 = fetch(geojsonUrl6).then(response => response.json());
+  const fetchGeoJSON7 = fetch(geojsonUrl7).then(response => response.json());
+  const fetchGeoJSON8 = fetch(geojsonUrl8).then(response => response.json());
 
   // When both GeoJSONs are fetched, combine them
   let raw = Promise.all([
     fetchGeoJSON1, fetchGeoJSON2,
     fetchGeoJSON3, fetchGeoJSON4,
-    fetchGeoJSON5, fetchGeoJSON6
+    fetchGeoJSON5, fetchGeoJSON6,
+    fetchGeoJSON7, fetchGeoJSON8
     ]).then(values => {
     const combinedFeatures = [
       ...values[0].features,
@@ -28,7 +33,9 @@ raw = {
       ...values[2].features,
       ...values[3].features,
       ...values[4].features,
-      ...values[5].features
+      ...values[5].features,
+      ...values[6].features,
+      ...values[7].features
       ]; // Combine features from both GeoJSON files
 
     // Create a new GeoJSON object with combined features
