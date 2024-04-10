@@ -10,6 +10,7 @@ format:
       gutter-width: 0.5rem
 ---
 
+
 {{< include /common/_data.qmd >}}
 {{< include /common/_globals.qmd >}}
 {{< include /common/_inputs.qmd >}}
@@ -116,7 +117,6 @@ Main block
     </div>
   `
 ```
-
 
 
 ```{ojs}

@@ -142,6 +142,12 @@ Generic functions
 ---------------->
 
 ```{ojs}
+function slice(...options) {
+  return array => array.slice(...options);
+}
+```
+
+```{ojs}
 function get_nearest_point(e, points){
   // 'e.latlng' gives you the LatLng object of where the mouse currently is
   const mouseLatLng = e.latlng;
@@ -281,6 +287,10 @@ geo = require("geotoolbox@2")
 ```{ojs}
 //| echo: false
 Plot = require("https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.13/dist/plot.umd.min.js")
+```
+
+```{ojs}
+import {multiAutoSelect} from "@linogaliana/multi-auto-select"
 ```
 
 

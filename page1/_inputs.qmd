@@ -33,6 +33,16 @@ widget_to_print = {
         Range([0, max_slope], {unit: "%", step: 0.2}),
         viewof climb_slope
       )
+    case filter_multiselect_group:
+      console.log("Choosing filter by climbing group")
+      return Inputs.bind(
+         multiAutoSelect({
+          options: massifs.sort(),
+          placeholder: label_search_massif,
+          value: "Arves et Grandes Rousses, France"
+        }),
+         viewof selected_massif
+      )
     default:
       return false
   }
@@ -48,6 +58,8 @@ function filter_active_width(d, widget) {
       return category.includes(d.category);
     case filter_checkbox_slope:
       return d.percent_moyen > climb_slope;
+    case filter_multiselect_group :
+      return selected_massif.includes(d.massif);
     default:
       return false; // or any default case handling you prefer
   }
@@ -105,7 +117,7 @@ table_selected = Inputs.table(
 
 ```{ojs}
 viewof filter_choice = Inputs.select(
-  [filter_checkbox_length, filter_checkbox_deniv, filter_checkbox_category, filter_checkbox_slope],
+  [filter_checkbox_length, filter_checkbox_deniv, filter_checkbox_category, filter_checkbox_slope, filter_multiselect_group],
   {value: filter_checkbox_deniv}
   )
 ```
@@ -114,6 +126,15 @@ viewof filter_choice = Inputs.select(
 <!--------------------------
 Behind the stage filters
 --------------------------->
+
+```{ojs}
+viewof selected_massif = multiAutoSelect({
+  options: massifs.sort(),
+  placeholder: label_search_massif,
+  value: "Arves et Grandes Rousses, France"
+})
+```
+
 
 ```{ojs}
 viewof climb_slope = Inputs.range([0, max_slope], {step: 0.2})

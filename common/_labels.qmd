@@ -11,6 +11,12 @@ finding_ascent_label = (lang == "fr") ? "Ascensions correspondant à la recherch
 ```
 
 ```{ojs}
+label_search_massif = (lang == "fr") ?
+  "Choisir des massifs à afficher" : 
+  "Choose climbing regions"
+```
+
+```{ojs}
 header_table_name = (lang == "fr") ? "Ascension" : "Ascent"
 header_table_departure = (lang == "fr") ? "Départ" : "Start"
 header_table_alt = (lang == "fr") ? "Altitude d'arrivée" : "Arrival height"
@@ -50,6 +56,7 @@ filter_checkbox_deniv = (lang == "fr") ? "Dénivelé" : "Height gain"
 filter_checkbox_category = (lang == "fr") ? "Catégorie de l'ascension" : "Ascent category"
 filter_checkbox_length = (lang == "fr") ? `Longueur de l'ascension` : "Ascension length"
 filter_checkbox_slope = (lang == "fr") ? "Pente moyenne" : "Average slope"
+filter_multiselect_group = (lang == "fr") ? "Massif de l'ascension" : "Mountain chain"
 ```
 
 

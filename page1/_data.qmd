@@ -17,6 +17,10 @@ max_slope = d3.max(
 categories = unique(sommets.features.map(d => d.properties.category))
 ```
 
+```{ojs}
+massifs = unique(sommets.features.map(d => d.properties.massif))
+```
+
 
 
 ```{ojs}
@@ -38,6 +42,15 @@ printed_points = {
   } else {
       const searchIds = search.map(s => s.id);
       printed_points = geo.filter(sommets, (d) => searchIds.includes(d.id));
+      if (width < 400) {
+        console.log(printed_points)
+        printed_points = geo.properties.head({
+          x: printed_points, // a geojson
+          field: "nom", // a colname (string)
+          nb: 100 // default:10. Number of features to get. 
+        })
+      }
+
   }
   return printed_points
 }
